@@ -1,0 +1,25 @@
+# Octopus Configuration
+
+# Node Configuration
+NodeID: 0
+TotalNodes: 4
+NumLeaders: 2
+SegmentSize: 32
+
+# Network Configuration
+ListenAddress: "0.0.0.0:8080"
+PeerAddresses:
+  - "localhost:8081"
+  - "localhost:8082"
+  - "localhost:8083"
+
+# Consensus Configuration
+BatchSize: 100
+BatchTimeout: 100  # milliseconds
+ViewChangeTimeout: 30000  # milliseconds
+
+# Logging
+LogLevel: "info"
+
+# Performance
+PipelineBufferSize: 1000

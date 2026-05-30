@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package network;
+
+option go_package = "octopus-bft/octopus/network/proto";
+
+// ConsensusService defines the P2P communication for consensus
+service ConsensusService {
+    // ProposeBlock sends a new block proposal
+    rpc ProposeBlock(BlockMsg) returns (Ack);
+    
+    // SubmitVote sends a vote for a block
+    rpc SubmitVote(VoteMsg) returns (Ack);
+    
+    // NewView notifies about view change
+    rpc NewView(NewViewMsg) returns (Ack);
+}
+
+// BlockMsg wraps a block for transmission
+message BlockMsg {
+    bytes block_data = 1; // Serialized Block
+}
+
+// VoteMsg wraps a vote for transmission
+message VoteMsg {
+    bytes vote_data = 1; // Serialized Vote
+}
+
+// NewViewMsg wraps a new view message
+message NewViewMsg {
+    uint64 view = 1;
+    uint64 sender_id = 2;
+    bytes high_qc = 3; // Serialized HighQC
+}
+
+// Ack is a generic acknowledgement
+message Ack {
+    bool success = 1;
+    string error = 2;
+}

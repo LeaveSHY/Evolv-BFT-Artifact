@@ -1,0 +1,36 @@
+# ============================================================================
+# Octopus BFT — ConfigMap
+# ============================================================================
+# Central configuration consumed by the init container and main container.
+# Modify these values to tune the cluster before deployment.
+# ============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: octopus-config
+  namespace: default
+  labels:
+    app: octopus
+    component: consensus
+data:
+  # ---- Cluster topology ---------------------------------------------------
+  OCTOPUS_TOTAL_NODES: "1000"
+  OCTOPUS_INITIAL_VALIDATORS: "1000"
+
+  # ---- Consensus parameters -----------------------------------------------
+  OCTOPUS_INSTANCES: "5"
+  OCTOPUS_BATCH_TXS: "2048"
+  OCTOPUS_TIMEOUT_MS: "1000"
+
+  # ---- Queue / buffer sizing -----------------------------------------------
+  OCTOPUS_INBOUND_MSG_QUEUE: "4096"
+  OCTOPUS_INBOUND_TX_QUEUE: "32768"
+  OCTOPUS_ORDERER_PENDING_CAP: "32768"
+
+  # ---- Networking ----------------------------------------------------------
+  OCTOPUS_P2P_PORT: "8080"
+  OCTOPUS_HTTP_PORT: "9000"
+  OCTOPUS_CONSENSUS_TOPIC: "octopus-consensus"
+
+  # ---- Service DNS (for scripts / sidecars) --------------------------------
+  OCTOPUS_HEADLESS_SVC: "octopus-headless.default.svc.cluster.local"

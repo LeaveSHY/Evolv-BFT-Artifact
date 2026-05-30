@@ -1,0 +1,32 @@
+# ============================================================================
+# Example terraform.tfvars for Octopus EC2 1000-node benchmark
+# Copy this file and fill in your values:
+#   cp terraform.tfvars.example terraform.tfvars
+# ============================================================================
+
+# REQUIRED: Your EC2 SSH key pair name
+key_name = "your-ec2-key-pair-name"
+
+# AWS region (default: us-east-1)
+# aws_region = "us-east-1"
+
+# Number of VMs (default: 100, each runs 10 replicas = 1000 total)
+# num_vms = 100
+
+# Replicas per VM (default: 10)
+# replicas_per_vm = 10
+
+# Instance type (default: c5.xlarge = 4 vCPU, 8 GiB)
+# instance_type = "c5.xlarge"
+
+# Simulated WAN delay in ms (one-way; 40ms = 80ms RTT)
+# wan_delay_ms = 40
+
+# Number of parallel consensus lanes
+# consensus_instances = 10
+
+# Transactions per batch (512KB / 64B = 8192)
+# batch_txs = 8192
+
+# Restrict SSH access to your IP (recommended)
+# allowed_ssh_cidr = "1.2.3.4/32"

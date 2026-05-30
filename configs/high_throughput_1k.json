@@ -1,0 +1,49 @@
+{
+    "description": "Optimized configuration for 1000-node deployment targeting >=100k tx/s, <=100ms latency",
+    "node": {
+        "instances": 10,
+        "total_nodes": 100,
+        "replicas_per_instance": 100,
+        "batch_txs": 4096,
+        "timeout_ms": 500,
+        "inbound_msg_queue": 8192,
+        "inbound_tx_queue": 65536,
+        "orderer_pending_cap": 65536
+    },
+    "vrf_committee": {
+        "enabled": true,
+        "committee_size": 25,
+        "note": "VRF sortition reduces O(n^2) to O(k^2) per round: 25 of 100 replicas vote per view"
+    },
+    "mempool": {
+        "max_pool_bytes": 33554432,
+        "max_batch_txs": 4096,
+        "max_batch_bytes": 8388608,
+        "max_queue_len": 32768,
+        "network_buffer": 8192,
+        "proposal_interval_ms": 25,
+        "tx_ttl_seconds": 60
+    },
+    "network": {
+        "compression": "snappy",
+        "max_message_size_bytes": 16777216,
+        "gossip_fanout": 8,
+        "heartbeat_interval_ms": 500
+    },
+    "pipelining": {
+        "depth": 4,
+        "overlap_phases": true,
+        "note": "4-phase pipeline (PREPARE/PRECOMMIT/COMMIT/DECIDE) with phase overlap yields ~1 RTT per committed block"
+    },
+    "orderer": {
+        "bar_timeout_ms": 500,
+        "nil_block_on_timeout": true,
+        "max_pending": 65536
+    },
+    "performance_targets": {
+        "throughput_ktxs": 100,
+        "latency_p50_ms": 50,
+        "latency_p99_ms": 100,
+        "rationale": "10 instances x 4096 batch x 1000/500ms timeout = 81920 tx/s baseline; with pipelining overlap and 25ms proposal interval: 10 x 4096 x 40 = 1.6M tx/s theoretical ceiling"
+    }
+}

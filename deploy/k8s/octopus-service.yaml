@@ -1,0 +1,50 @@
+# ============================================================================
+# Octopus BFT — Headless Service for StatefulSet peer discovery
+# ============================================================================
+# Provides stable DNS entries:
+#   octopus-{i}.octopus-headless.default.svc.cluster.local
+# ============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: octopus-headless
+  namespace: default
+  labels:
+    app: octopus
+    component: consensus
+spec:
+  clusterIP: None
+  selector:
+    app: octopus
+  ports:
+    - name: p2p
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    - name: http
+      port: 9000
+      targetPort: 9000
+      protocol: TCP
+  publishNotReadyAddresses: true
+
+---
+# ============================================================================
+# Client-facing service for external HTTP access (load-balanced)
+# ============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: octopus-http
+  namespace: default
+  labels:
+    app: octopus
+    component: consensus
+spec:
+  type: ClusterIP
+  selector:
+    app: octopus
+  ports:
+    - name: http
+      port: 9000
+      targetPort: 9000
+      protocol: TCP

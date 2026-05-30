@@ -1,0 +1,503 @@
+{
+  "comparison": [
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 25,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 318.0745453384014,
+      "latency_mean_ms": 136.82327189589728,
+      "latency_p50_ms": 136.43968639430543,
+      "latency_p95_ms": 137.8244898561073,
+      "latency_p99_ms": 192.6295048906614,
+      "message_complexity": "O(25²) per instance (VRF k=25 of n=100)",
+      "bandwidth_mbps_per_node": 0.0024224557372972645,
+      "reconfig_overhead_pct": 1.6
+    },
+    {
+      "config": {
+        "TotalNodes": 0,
+        "NumInstances": 0,
+        "CommitteeSize": 0,
+        "BatchTxs": 0,
+        "PayloadBytes": 0,
+        "PipelineDepth": 0,
+        "CompressionRatio": 0,
+        "Network": {
+          "Name": "",
+          "BaseRTTMs": 0,
+          "JitterMs": 0,
+          "BandwidthMbps": 0
+        },
+        "FaultFraction": 0,
+        "ReconfigIntervalMs": 0
+      },
+      "system": "single-bft",
+      "throughput_ktxs": 2.7667089391446313,
+      "latency_mean_ms": 1480.4593074638126,
+      "latency_p50_ms": 1479.6138873261298,
+      "latency_p95_ms": 0,
+      "latency_p99_ms": 1519.1476962125157,
+      "message_complexity": "O(1000²) global",
+      "bandwidth_mbps_per_node": 0,
+      "reconfig_overhead_pct": 0
+    },
+    {
+      "config": {
+        "TotalNodes": 0,
+        "NumInstances": 0,
+        "CommitteeSize": 0,
+        "BatchTxs": 0,
+        "PayloadBytes": 0,
+        "PipelineDepth": 0,
+        "CompressionRatio": 0,
+        "Network": {
+          "Name": "",
+          "BaseRTTMs": 0,
+          "JitterMs": 0,
+          "BandwidthMbps": 0
+        },
+        "FaultFraction": 0,
+        "ReconfigIntervalMs": 0
+      },
+      "system": "bullshark",
+      "throughput_ktxs": 70.07565288619611,
+      "latency_mean_ms": 310.9496537319071,
+      "latency_p50_ms": 310.52694366306486,
+      "latency_p95_ms": 0,
+      "latency_p99_ms": 330.2938481062579,
+      "message_complexity": "O(1000) per round DAG",
+      "bandwidth_mbps_per_node": 0,
+      "reconfig_overhead_pct": 0
+    },
+    {
+      "config": {
+        "TotalNodes": 0,
+        "NumInstances": 0,
+        "CommitteeSize": 0,
+        "BatchTxs": 0,
+        "PayloadBytes": 0,
+        "PipelineDepth": 0,
+        "CompressionRatio": 0,
+        "Network": {
+          "Name": "",
+          "BaseRTTMs": 0,
+          "JitterMs": 0,
+          "BandwidthMbps": 0
+        },
+        "FaultFraction": 0,
+        "ReconfigIntervalMs": 0
+      },
+      "system": "ladon",
+      "throughput_ktxs": 40.88008120181229,
+      "latency_mean_ms": 400.7819827734018,
+      "latency_p50_ms": 400.9077268254853,
+      "latency_p95_ms": 0,
+      "latency_p99_ms": 430.58616518146226,
+      "message_complexity": "O(1000) multi-leader",
+      "bandwidth_mbps_per_node": 0,
+      "reconfig_overhead_pct": 0
+    }
+  ],
+  "config": {
+    "TotalNodes": 1000,
+    "NumInstances": 10,
+    "CommitteeSize": 25,
+    "BatchTxs": 4352,
+    "PayloadBytes": 64,
+    "PipelineDepth": 4,
+    "CompressionRatio": 0.35,
+    "Network": {
+      "Name": "WAN",
+      "BaseRTTMs": 100,
+      "JitterMs": 20,
+      "BandwidthMbps": 100
+    },
+    "FaultFraction": 0.33,
+    "ReconfigIntervalMs": 10000
+  },
+  "rounds": 500,
+  "scaling": [
+    {
+      "config": {
+        "TotalNodes": 100,
+        "NumInstances": 1,
+        "CommitteeSize": 25,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 33.841140094248004,
+      "latency_mean_ms": 128.60086828870496,
+      "latency_p50_ms": 128.27052845039222,
+      "latency_p95_ms": 137.2641444898589,
+      "latency_p99_ms": 174.7885878729315,
+      "message_complexity": "O(25²) per instance (VRF k=25 of n=100)",
+      "bandwidth_mbps_per_node": 0.0025773412295779273,
+      "reconfig_overhead_pct": 1.2
+    },
+    {
+      "config": {
+        "TotalNodes": 200,
+        "NumInstances": 2,
+        "CommitteeSize": 25,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 66.25741610684292,
+      "latency_mean_ms": 131.36642675537524,
+      "latency_p50_ms": 132.05921630290226,
+      "latency_p95_ms": 137.5800680150482,
+      "latency_p99_ms": 137.85874218522605,
+      "message_complexity": "O(25²) per instance (VRF k=25 of n=100)",
+      "bandwidth_mbps_per_node": 0.0025230824053485775,
+      "reconfig_overhead_pct": 0.6
+    },
+    {
+      "config": {
+        "TotalNodes": 400,
+        "NumInstances": 4,
+        "CommitteeSize": 25,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 129.4782830774773,
+      "latency_mean_ms": 134.4472569935407,
+      "latency_p50_ms": 134.24730414606393,
+      "latency_p95_ms": 137.71236717306658,
+      "latency_p99_ms": 176.58403468697756,
+      "message_complexity": "O(25²) per instance (VRF k=25 of n=100)",
+      "bandwidth_mbps_per_node": 0.0024652665097951673,
+      "reconfig_overhead_pct": 1.2
+    },
+    {
+      "config": {
+        "TotalNodes": 600,
+        "NumInstances": 6,
+        "CommitteeSize": 25,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 192.34313543622923,
+      "latency_mean_ms": 135.75737933552276,
+      "latency_p50_ms": 135.89919014810107,
+      "latency_p95_ms": 137.82711125226587,
+      "latency_p99_ms": 137.91577824599483,
+      "message_complexity": "O(25²) per instance (VRF k=25 of n=100)",
+      "bandwidth_mbps_per_node": 0.002441475532470536,
+      "reconfig_overhead_pct": 0.8
+    },
+    {
+      "config": {
+        "TotalNodes": 800,
+        "NumInstances": 8,
+        "CommitteeSize": 25,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 255.9726130068269,
+      "latency_mean_ms": 136.01455089678458,
+      "latency_p50_ms": 136.3674306397194,
+      "latency_p95_ms": 137.85192770705277,
+      "latency_p99_ms": 137.91577824599483,
+      "message_complexity": "O(25²) per instance (VRF k=25 of n=100)",
+      "bandwidth_mbps_per_node": 0.0024368592758249917,
+      "reconfig_overhead_pct": 0.4
+    },
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 25,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 318.3061378001266,
+      "latency_mean_ms": 136.7237223283688,
+      "latency_p50_ms": 136.63104487192714,
+      "latency_p95_ms": 137.8664174524955,
+      "latency_p99_ms": 137.92181107508878,
+      "message_complexity": "O(25²) per instance (VRF k=25 of n=100)",
+      "bandwidth_mbps_per_node": 0.0024242195454857634,
+      "reconfig_overhead_pct": 1
+    }
+  ],
+  "timestamp": "2026-05-23T23:01:20+08:00",
+  "vrf_sensitivity": [
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 0,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 318.0204009564649,
+      "latency_mean_ms": 136.8465666639972,
+      "latency_p50_ms": 136.99234879553282,
+      "latency_p95_ms": 138.1926459594318,
+      "latency_p99_ms": 138.28895225794838,
+      "message_complexity": "O(100²) per instance (all vote)",
+      "bandwidth_mbps_per_node": 0.038182801420437,
+      "reconfig_overhead_pct": 0.6
+    },
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 10,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 319.06961490613105,
+      "latency_mean_ms": 136.39656666399713,
+      "latency_p50_ms": 136.5423487955328,
+      "latency_p95_ms": 137.7426459594318,
+      "latency_p99_ms": 137.8389522579484,
+      "message_complexity": "O(10²) per instance (VRF k=10 of n=100)",
+      "bandwidth_mbps_per_node": 0.0004002409249382508,
+      "reconfig_overhead_pct": 0.6
+    },
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 15,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 319.0111436499529,
+      "latency_mean_ms": 136.42156666399708,
+      "latency_p50_ms": 136.56734879553284,
+      "latency_p95_ms": 137.76764595943177,
+      "latency_p99_ms": 137.86395225794837,
+      "message_complexity": "O(15²) per instance (VRF k=15 of n=100)",
+      "bandwidth_mbps_per_node": 0.0009432521495441808,
+      "reconfig_overhead_pct": 0.6
+    },
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 20,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 318.22319049463385,
+      "latency_mean_ms": 136.75936041101903,
+      "latency_p50_ms": 136.39639401727732,
+      "latency_p95_ms": 137.80416585567104,
+      "latency_p99_ms": 188.15414677880332,
+      "message_complexity": "O(20²) per instance (VRF k=20 of n=100)",
+      "bandwidth_mbps_per_node": 0.0015967166806258746,
+      "reconfig_overhead_pct": 1.6
+    },
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 25,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 318.0575303674468,
+      "latency_mean_ms": 136.83059146476435,
+      "latency_p50_ms": 136.4213940172773,
+      "latency_p95_ms": 137.82916585567102,
+      "latency_p99_ms": 190.28255741131872,
+      "message_complexity": "O(25²) per instance (VRF k=25 of n=100)",
+      "bandwidth_mbps_per_node": 0.002422326151278475,
+      "reconfig_overhead_pct": 1.6
+    },
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 33,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 317.9645790542498,
+      "latency_mean_ms": 136.87059146476437,
+      "latency_p50_ms": 136.4613940172773,
+      "latency_p95_ms": 137.86916585567104,
+      "latency_p99_ms": 190.32255741131874,
+      "message_complexity": "O(33²) per instance (VRF k=33 of n=100)",
+      "bandwidth_mbps_per_node": 0.004324725269798986,
+      "reconfig_overhead_pct": 1.6
+    },
+    {
+      "config": {
+        "TotalNodes": 1000,
+        "NumInstances": 10,
+        "CommitteeSize": 50,
+        "BatchTxs": 4352,
+        "PayloadBytes": 64,
+        "PipelineDepth": 4,
+        "CompressionRatio": 0.35,
+        "Network": {
+          "Name": "WAN",
+          "BaseRTTMs": 100,
+          "JitterMs": 20,
+          "BandwidthMbps": 100
+        },
+        "FaultFraction": 0.33,
+        "ReconfigIntervalMs": 10000
+      },
+      "system": "octopus",
+      "throughput_ktxs": 317.06805261625084,
+      "latency_mean_ms": 137.2576001930806,
+      "latency_p50_ms": 136.73178436884427,
+      "latency_p95_ms": 137.98893636663192,
+      "latency_p99_ms": 191.10781172047734,
+      "message_complexity": "O(50²) per instance (VRF k=50 of n=100)",
+      "bandwidth_mbps_per_node": 0.009659161154901463,
+      "reconfig_overhead_pct": 1.7999999999999998
+    }
+  ]
+}

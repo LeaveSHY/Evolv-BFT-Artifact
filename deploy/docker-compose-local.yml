@@ -1,0 +1,215 @@
+# ============================================================================
+# Octopus BFT — Docker Compose for Local Testing (4 nodes)
+# ============================================================================
+# SETUP:
+#   1. Generate genesis with Docker hostnames:
+#      cd ../src && go run ./cmd/octopus-genesis -nodes=4 -seed=localtest \
+#         -base-host=octopus-node -base-port=8080 -out=../deploy/configs/genesis.json
+#   2. Generate per-node manifests:
+#      cd ../deploy && python3 generate_config.py --nodes 4 --compose \
+#         --manifest configs/genesis.json --output-dir configs
+#   3. Start cluster:
+#      docker compose -f docker-compose-local.yml up -d
+# Stop:    docker compose -f docker-compose-local.yml down -v
+# Logs:    docker compose -f docker-compose-local.yml logs -f
+# ============================================================================
+
+services:
+  # ── Node 0 ──────────────────────────────────────────────────────────────
+  octopus-node-0:
+    image: octopus-bft:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: octopus-node-0
+    hostname: octopus-node-0
+    command: >
+      -id=0
+      -port=8080
+      -http=9000
+      -total-nodes=4
+      -initial-validators=4
+      -instances=5
+      -batch-txs=2048
+      -timeout-ms=1000
+      -inbound-msg-queue=4096
+      -inbound-tx-queue=32768
+      -orderer-pending-cap=32768
+      -consensus-topic=octopus-consensus
+      -manifest=/config/manifests/node-0-manifest.json
+    ports:
+      - "9000:9000"      # HTTP admin/metrics
+      - "8080:8080"      # P2P libp2p
+    networks:
+      - octopus-net
+    volumes:
+      - ./configs:/config:ro
+      - octopus-data-0:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:9000/metrics"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  # ── Node 1 ──────────────────────────────────────────────────────────────
+  octopus-node-1:
+    image: octopus-bft:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: octopus-node-1
+    hostname: octopus-node-1
+    command: >
+      -id=1
+      -port=8080
+      -http=9000
+      -total-nodes=4
+      -initial-validators=4
+      -instances=5
+      -batch-txs=2048
+      -timeout-ms=1000
+      -inbound-msg-queue=4096
+      -inbound-tx-queue=32768
+      -orderer-pending-cap=32768
+      -consensus-topic=octopus-consensus
+      -manifest=/config/manifests/node-1-manifest.json
+    ports:
+      - "9001:9000"
+      - "8081:8080"
+    networks:
+      - octopus-net
+    volumes:
+      - ./configs:/config:ro
+      - octopus-data-1:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:9000/metrics"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  # ── Node 2 ──────────────────────────────────────────────────────────────
+  octopus-node-2:
+    image: octopus-bft:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: octopus-node-2
+    hostname: octopus-node-2
+    command: >
+      -id=2
+      -port=8080
+      -http=9000
+      -total-nodes=4
+      -initial-validators=4
+      -instances=5
+      -batch-txs=2048
+      -timeout-ms=1000
+      -inbound-msg-queue=4096
+      -inbound-tx-queue=32768
+      -orderer-pending-cap=32768
+      -consensus-topic=octopus-consensus
+      -manifest=/config/manifests/node-2-manifest.json
+    ports:
+      - "9002:9000"
+      - "8082:8080"
+    networks:
+      - octopus-net
+    volumes:
+      - ./configs:/config:ro
+      - octopus-data-2:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:9000/metrics"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  # ── Node 3 ──────────────────────────────────────────────────────────────
+  octopus-node-3:
+    image: octopus-bft:latest
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: octopus-node-3
+    hostname: octopus-node-3
+    command: >
+      -id=3
+      -port=8080
+      -http=9000
+      -total-nodes=4
+      -initial-validators=4
+      -instances=5
+      -batch-txs=2048
+      -timeout-ms=1000
+      -inbound-msg-queue=4096
+      -inbound-tx-queue=32768
+      -orderer-pending-cap=32768
+      -consensus-topic=octopus-consensus
+      -manifest=/config/manifests/node-3-manifest.json
+    ports:
+      - "9003:9000"
+      - "8083:8080"
+    networks:
+      - octopus-net
+    volumes:
+      - ./configs:/config:ro
+      - octopus-data-3:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:9000/metrics"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+# ── Network ────────────────────────────────────────────────────────────────
+networks:
+  octopus-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ── Volumes ────────────────────────────────────────────────────────────────
+volumes:
+  octopus-data-0:
+  octopus-data-1:
+  octopus-data-2:
+  octopus-data-3:

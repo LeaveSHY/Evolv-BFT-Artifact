@@ -1,0 +1,211 @@
+{
+  "experiment": "role_decomposition_ablation",
+  "description": "Per-component ablation of SFAC-FACMAC organizational rewards (RAG / GRG / RRG / PER). Backs Appendix:org-eval in the NDSS submission.",
+  "sim_cfg": {
+    "n_nodes": 100,
+    "m_instances": 4,
+    "f_fraction": 0.3,
+    "signal_byz_active": 0.65,
+    "noise_byz_dormant": 0.05,
+    "noise_honest": 0.02,
+    "signal_noise_std": 0.15,
+    "roam_kappa_init": 50,
+    "equiv_prob_active": 0.25,
+    "equiv_prob_dormant": 0.02,
+    "active_signal_boost": 0.85,
+    "active_signal_boost_std": 0.05
+  },
+  "args": {
+    "seeds": [
+      7
+    ],
+    "train_episodes": 4000,
+    "eval_episodes": 1500
+  },
+  "ablations": {
+    "full": {
+      "lambda_5": 5.0,
+      "lambda_6": 5.0
+    },
+    "no_rag": {
+      "ch_sentinel": 0.0,
+      "ch_commander": 0.0,
+      "ch_tuner": 0.0,
+      "lambda_5": 5.0,
+      "lambda_6": 5.0
+    },
+    "no_grg": {
+      "lambda_5": 0.0,
+      "lambda_6": 5.0
+    },
+    "no_rrg": {
+      "lambda_5": 5.0,
+      "lambda_6": 0.0
+    },
+    "no_per": {
+      "per_alpha": 0.0,
+      "lambda_5": 5.0,
+      "lambda_6": 5.0
+    }
+  },
+  "summary": {
+    "full": {
+      "n_seeds": 1,
+      "final_f1_mean": 0.0,
+      "final_f1_std": 0.0,
+      "convergence_step_mean": 0.0,
+      "convergence_step_std": 0.0,
+      "n_seeds_converged": 1,
+      "delta_f1_pp": 0.0,
+      "delta_convergence_pct": null
+    },
+    "no_rag": {
+      "n_seeds": 1,
+      "final_f1_mean": 0.0,
+      "final_f1_std": 0.0,
+      "convergence_step_mean": 0.0,
+      "convergence_step_std": 0.0,
+      "n_seeds_converged": 1,
+      "delta_f1_pp": 0.0,
+      "delta_convergence_pct": null
+    },
+    "no_grg": {
+      "n_seeds": 1,
+      "final_f1_mean": 0.0,
+      "final_f1_std": 0.0,
+      "convergence_step_mean": 0.0,
+      "convergence_step_std": 0.0,
+      "n_seeds_converged": 1,
+      "delta_f1_pp": 0.0,
+      "delta_convergence_pct": null
+    },
+    "no_rrg": {
+      "n_seeds": 1,
+      "final_f1_mean": 0.0,
+      "final_f1_std": 0.0,
+      "convergence_step_mean": 0.0,
+      "convergence_step_std": 0.0,
+      "n_seeds_converged": 1,
+      "delta_f1_pp": 0.0,
+      "delta_convergence_pct": null
+    },
+    "no_per": {
+      "n_seeds": 1,
+      "final_f1_mean": 0.0,
+      "final_f1_std": 0.0,
+      "convergence_step_mean": 0.0,
+      "convergence_step_std": 0.0,
+      "n_seeds_converged": 1,
+      "delta_f1_pp": 0.0,
+      "delta_convergence_pct": null
+    }
+  },
+  "per_seed": [
+    {
+      "ablation": "full",
+      "seed": 7,
+      "train_episodes": 4000,
+      "eval_episodes": 1500,
+      "window_len": 20,
+      "final_f1": 0.0,
+      "rghr_f1": 0.0,
+      "rghr_auc": 0.07622811970638058,
+      "role_f1_clustering": 0.44,
+      "sof": 0.8788075735434421,
+      "fof": 0.900070780984527,
+      "of": 0.8894391772639845,
+      "detection_f1": 0.5471457231442641,
+      "convergence_step": 0,
+      "tp": 1500,
+      "fp": 2483,
+      "fn": 0,
+      "elapsed_sec": 42.685023069381714,
+      "rolling_f1_train_mean_last_window": 0.5735325010825478
+    },
+    {
+      "ablation": "no_rag",
+      "seed": 7,
+      "train_episodes": 4000,
+      "eval_episodes": 1500,
+      "window_len": 20,
+      "final_f1": 0.0,
+      "rghr_f1": 0.0,
+      "rghr_auc": 0.07622811970638058,
+      "role_f1_clustering": 0.44,
+      "sof": 0.8788075735434421,
+      "fof": 0.900070780984527,
+      "of": 0.8894391772639845,
+      "detection_f1": 0.5471457231442641,
+      "convergence_step": 0,
+      "tp": 1500,
+      "fp": 2483,
+      "fn": 0,
+      "elapsed_sec": 42.72659754753113,
+      "rolling_f1_train_mean_last_window": 0.5735325010825478
+    },
+    {
+      "ablation": "no_grg",
+      "seed": 7,
+      "train_episodes": 4000,
+      "eval_episodes": 1500,
+      "window_len": 20,
+      "final_f1": 0.0,
+      "rghr_f1": 0.0,
+      "rghr_auc": 0.05452035886818495,
+      "role_f1_clustering": 0.45,
+      "sof": 0.8830509469984744,
+      "fof": 0.9045792941548939,
+      "of": 0.8938151205766842,
+      "detection_f1": 0.5471457231442641,
+      "convergence_step": 0,
+      "tp": 1500,
+      "fp": 2483,
+      "fn": 0,
+      "elapsed_sec": 40.013946533203125,
+      "rolling_f1_train_mean_last_window": 0.5735325010825478
+    },
+    {
+      "ablation": "no_rrg",
+      "seed": 7,
+      "train_episodes": 4000,
+      "eval_episodes": 1500,
+      "window_len": 20,
+      "final_f1": 0.0,
+      "rghr_f1": 0.0,
+      "rghr_auc": 0.07258924650228998,
+      "role_f1_clustering": 0.49333333333333335,
+      "sof": 0.8721438124641846,
+      "fof": 0.9134450589535423,
+      "of": 0.8927944357088635,
+      "detection_f1": 0.5471457231442641,
+      "convergence_step": 0,
+      "tp": 1500,
+      "fp": 2483,
+      "fn": 0,
+      "elapsed_sec": 43.332364320755005,
+      "rolling_f1_train_mean_last_window": 0.5735325010825478
+    },
+    {
+      "ablation": "no_per",
+      "seed": 7,
+      "train_episodes": 4000,
+      "eval_episodes": 1500,
+      "window_len": 20,
+      "final_f1": 0.0,
+      "rghr_f1": 0.0,
+      "rghr_auc": 0.09065813413639501,
+      "role_f1_clustering": 0.49,
+      "sof": 0.866619143745682,
+      "fof": 0.9144611898257407,
+      "of": 0.8905401667857114,
+      "detection_f1": 0.5471457231442641,
+      "convergence_step": 0,
+      "tp": 1500,
+      "fp": 2483,
+      "fn": 0,
+      "elapsed_sec": 43.05506086349487,
+      "rolling_f1_train_mean_last_window": 0.5735325010825478
+    }
+  ],
+  "total_elapsed_sec": 214.21572375297546
+}

@@ -1,0 +1,40 @@
+# ============================================================================
+# Octopus BFT — PersistentVolumeClaim for Genesis Manifests
+# ============================================================================
+# This PVC must be populated with per-node manifests BEFORE deploying the
+# StatefulSet. Use the following workflow:
+#
+#   1. Generate genesis:
+#      octopus-genesis -nodes=1000 -seed=k8s-bench -out=genesis.json
+#
+#   2. Generate per-node manifests:
+#      python3 generate_config.py --nodes 1000 --k8s --manifest genesis.json \
+#          --output-dir ./k8s-configs
+#
+#   3. Create this PVC and populate it (e.g., via a one-shot Job or kubectl cp):
+#      kubectl apply -f octopus-manifests-pvc.yaml
+#      kubectl run manifest-loader --image=busybox --restart=Never \
+#          --overrides='{"spec":{"volumes":[{"name":"m","persistentVolumeClaim":{"claimName":"octopus-manifests"}}],"containers":[{"name":"loader","image":"busybox","command":["sleep","3600"],"volumeMounts":[{"name":"m","mountPath":"/manifests"}]}]}}'
+#      kubectl cp ./k8s-configs/manifests/ manifest-loader:/manifests/
+#      kubectl delete pod manifest-loader
+#
+#   4. Deploy the StatefulSet:
+#      kubectl apply -f octopus-statefulset.yaml
+# ============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: octopus-manifests
+  namespace: default
+  labels:
+    app: octopus
+    component: consensus
+spec:
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: 100Mi  # 1000 manifests × ~5KB each ≈ 5MB; generous headroom
+  # NOTE: ReadOnlyMany requires a storage class that supports ROX (e.g., NFS,
+  # EFS, or GCE PD with multi-read). On EKS, use EFS CSI driver:
+  #   storageClassName: efs-sc

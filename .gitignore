@@ -1,0 +1,95 @@
+.worktrees/
+.venv_marl/
+.claude/
+.omc/
+.codegraph/
+.pytest_cache/
+build/
+*.pdf
+__pycache__/
+*.pyc
+deploy/tmp-*
+deploy/tmp-*/
+deploy/tmp-multi-configs/
+deploy/tmp-single-configs/
+experiments/results/
+src/*.exe
+src/*.bat
+src/$tmp
+
+# Build/coverage artifacts in src/
+src/c
+src/coverage
+src/coverage_mempool
+src/hotstuff_cover
+src/hs
+src/hydra
+
+# Third-party reference repos (cloned, not part of Octopus source)
+AdvCollaborativePerception/
+Collaboration-Benchmark/
+acm-ccs-2025-multi-agent-rep/
+research_assets/
+
+# Paper repo (separate git)
+NDSS 2027_SUBMISSION/
+
+# Profiling / scratch
+*.out
+.pytest_cache/
+d:\\Alex\\Papers/
+tla/tla2tools.jar
+tla/*.bin
+tla/states/
+tla/*_TTrace_*.tla
+tla/hs_err_*.log
+
+# Obsolete experiment scripts (kept on disk for reference, not tracked)
+experiments/fonts/
+experiments/tests/
+experiments/gen_pub_figures*.py
+experiments/regen_*.py
+experiments/run_all.py
+experiments/run_new_experiments.py
+experiments/run_ndss_*.py
+experiments/run_appendix_experiments.py
+experiments/run_octopus_only.py
+experiments/run_e2e_aligned.py
+experiments/run_e2e_v6_ppo.py
+experiments/run_full_cp_experiments.py
+experiments/run_runtime_training_eval.py
+experiments/run_control_plane_eval.py
+experiments/run_data_plane_eval.sh
+experiments/run_consensus_comparison.py
+experiments/run_attack_variants.py
+experiments/run_ablation_hard.py
+experiments/run_rho_sensitivity.py
+experiments/run_scaling_experiment.py
+experiments/sfac_facmac.py
+experiments/sfac_grpc_server.py
+experiments/sfac_server.py
+experiments/test_*.py
+experiments/assemble_evidence_bundle.sh
+experiments/refresh_evidence_bundle.py
+experiments/export_trust_weights.py
+experiments/copy_appendix_figures.py
+experiments/analyze_scaling.py
+experiments/check_beta.py
+experiments/fix_figure_fonts.py
+experiments/register_fonts.py
+experiments/plot_results.py
+experiments/gen_ablation_figure.py
+experiments/gen_all_supplementary_figures.py
+experiments/gen_consensus_figures.py
+experiments/gen_paper_figures.py
+experiments/gen_v2x_appendix_figures.py
+
+# Obsolete specs/docs
+specs/
+docs/
+tests/
+
+# Baseline cloned repos (large, not tracked)
+baselines/bullshark/narwhal/
+baselines/ladon/ladon/
+baselines/.ec2_instances.json

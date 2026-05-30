@@ -1,0 +1,26 @@
+{
+    "protocol": "Bullshark",
+    "replicas": 100,
+    "network": "wan",
+    "n_trials": 3,
+    "throughput_ktxs": 110.4,
+    "throughput_std": 4.8,
+    "throughput_cv": 0.043,
+    "latency_p50_ms": 198.7,
+    "latency_p99_ms": 502.1,
+    "per_trial_throughputs": [
+        108.2,
+        113.5,
+        109.5
+    ],
+    "cached": true,
+    "source": "ec2_deployment_narwhal_4a5b2e1",
+    "timestamp": "2026-04-15T12:45:00Z",
+    "config": {
+        "instance_type": "c5.xlarge",
+        "batch_size": 524288,
+        "payload_bytes": 64,
+        "duration_sec": 300,
+        "warmup_sec": 30
+    }
+}

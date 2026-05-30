@@ -1,0 +1,22 @@
+# Octopus Experiment Dependencies
+# Tested with Python 3.10+
+# Install: pip install -r requirements.txt
+
+# Core scientific computing
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Deep learning (SFAC / MARL training)
+torch>=2.0.0
+
+# Visualization
+matplotlib>=3.7.0
+
+# gRPC (SFAC policy server)
+grpcio>=1.50.0
+
+# PDF manipulation (figure extraction)
+PyMuPDF>=1.22.0
+
+# Testing
+pytest>=7.0.0

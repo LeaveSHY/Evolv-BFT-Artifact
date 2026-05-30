@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "id": 0,
+      "power": 1,
+      "is_active": true,
+      "public_key_hex": "18fb11bcdb6db745913991efca617f451773cb3ed7480c98bf6f32e10ee5e88a",
+      "private_key_hex": "ac0c582e06d58d79043233f28e80c8b32f15f29797db73c5bed1b42cf2d2264e18fb11bcdb6db745913991efca617f451773cb3ed7480c98bf6f32e10ee5e88a",
+      "vrf_public_key_hex": "a9cba00c6da852e7b16df0ae0efcd624cf6dce3caa676398a9497c8bd182aede",
+      "vrf_private_key_hex": "c2dbe2181e60bdf3005c9f6c8e88b04b46d03fd607e9d5c09a4b6d11f043aa03",
+      "peer_id": "12D3KooWBVszyxiBBU14sfF1MTtuqRReWuTVfq1bDecEFjjxM5S1",
+      "p2p_multiaddr": "/ip4/127.0.0.1/tcp/8080/p2p/12D3KooWBVszyxiBBU14sfF1MTtuqRReWuTVfq1bDecEFjjxM5S1"
+    },
+    {
+      "id": 1,
+      "power": 1,
+      "is_active": true,
+      "public_key_hex": "82d3ba4b7f819d73516bd15e6f022f0c01e599e4009e0d02b7a530c2534d3d56",
+      "private_key_hex": "cd3db563997c0d610dbb62c0a69de5c8032858ad5bf2cb92b20d2a0a4152fe3782d3ba4b7f819d73516bd15e6f022f0c01e599e4009e0d02b7a530c2534d3d56",
+      "vrf_public_key_hex": "825b2cbe5c5e368d84d8f315ff1ac69555ebbc3a5cf9cc1c6c03bb4885be6f1d",
+      "vrf_private_key_hex": "cfd78888ac5edfdf8c060ad4c77b45063b2647d73def679f3030d93d069fa801",
+      "peer_id": "12D3KooWJd4RTpjsqKPQ4iRpcSwXqsN4paXHNbkMhaihucS2KZRf",
+      "p2p_multiaddr": "/ip4/127.0.0.1/tcp/8081/p2p/12D3KooWJd4RTpjsqKPQ4iRpcSwXqsN4paXHNbkMhaihucS2KZRf"
+    },
+    {
+      "id": 2,
+      "power": 1,
+      "is_active": true,
+      "public_key_hex": "4b4e6552097e5fb5329a68f838a93f9372029c1d7b3e77c9490b4078609c32ae",
+      "private_key_hex": "7438399f7e68f7a75cfa0a62d923407fc7d9a36e7baa6711cd4ae8ea335850964b4e6552097e5fb5329a68f838a93f9372029c1d7b3e77c9490b4078609c32ae",
+      "vrf_public_key_hex": "b9a4bedde3dac9c23f11666ece82cd8c5bdbaaba67a86b68435560825a3ef84d",
+      "vrf_private_key_hex": "0f949e9fea5d8f8470af28686c66b8ce0a5fe7303ef4775dec419962a4657e05",
+      "peer_id": "12D3KooWEtL5abpEi1Ro4R7oDVqfvLCFyrrnotNBrsnNvrzDX8Dj",
+      "p2p_multiaddr": "/ip4/127.0.0.1/tcp/8082/p2p/12D3KooWEtL5abpEi1Ro4R7oDVqfvLCFyrrnotNBrsnNvrzDX8Dj"
+    },
+    {
+      "id": 3,
+      "power": 1,
+      "is_active": true,
+      "public_key_hex": "06fe277cd89ec22106d1094d601e183bd850a59a9510854ddae20249995d9eb7",
+      "private_key_hex": "62ad9559d3789362dbc7b99b461ab96499e0d330931c78d7db8d2c90fadac57d06fe277cd89ec22106d1094d601e183bd850a59a9510854ddae20249995d9eb7",
+      "vrf_public_key_hex": "1a41ead6645771f12206d1b1d733faee31a2b9e83c23a3c257eaff15822b6214",
+      "vrf_private_key_hex": "62f8fad3e656fddb7552746e616f5ac7ae26ce23f804f6986b4e3344eda00e04",
+      "peer_id": "12D3KooWAHfPbESU3MZikvhFrw6aAZY2srnEU1hb4PqoQs8B2YrS",
+      "p2p_multiaddr": "/ip4/127.0.0.1/tcp/8083/p2p/12D3KooWAHfPbESU3MZikvhFrw6aAZY2srnEU1hb4PqoQs8B2YrS"
+    }
+  ]
+}

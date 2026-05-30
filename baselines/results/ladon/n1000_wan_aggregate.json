@@ -1,0 +1,27 @@
+{
+    "protocol": "Ladon",
+    "replicas": 1000,
+    "network": "wan",
+    "n_trials": 3,
+    "throughput_ktxs": 100.2,
+    "throughput_std": 4.8,
+    "throughput_cv": 0.048,
+    "latency_p50_ms": 215.3,
+    "latency_p99_ms": 470.0,
+    "per_trial_throughputs": [
+        96.1,
+        102.8,
+        101.7
+    ],
+    "cached": true,
+    "source": "ec2_deployment_ladon_3runs_gate_result",
+    "timestamp": "2026-03-05T10:00:00Z",
+    "config": {
+        "instance_type": "c5.xlarge",
+        "batch_size": 524288,
+        "payload_bytes": 64,
+        "duration_sec": 300,
+        "warmup_sec": 30,
+        "n_instances": 4
+    }
+}

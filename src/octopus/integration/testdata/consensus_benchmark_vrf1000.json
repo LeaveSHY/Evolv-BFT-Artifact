@@ -1,0 +1,12 @@
+{
+  "cluster_size": 1000,
+  "network_delay_ms": 20,
+  "rounds_completed": 20,
+  "duration_ms": 876.0599999999998,
+  "rounds_per_sec": 22.829486564847162,
+  "throughput_tx_per_s": 187019.15393922795,
+  "latency_p50_ms": 43.672,
+  "latency_p95_ms": 44.968,
+  "batch_size_tx": 8192,
+  "source": "measured_in_process_vrf_k25"
+}
