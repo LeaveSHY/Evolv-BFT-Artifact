@@ -1,4 +1,4 @@
-module octopus-bft
+module evolvbft
 
 go 1.25
 
@@ -128,4 +128,4 @@ require (
 	lukechampine.com/blake3 v1.4.1 // indirect
 )
 
-replace octopus-bft => ./
+replace evolvbft => ./

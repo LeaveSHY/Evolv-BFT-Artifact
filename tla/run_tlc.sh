@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================================
-# Octopus BFT — TLA+ Model Checking Script
+# Evolv-BFT — TLA+ Model Checking Script
 # ============================================================================
 # Prerequisites:
 #   - Java 11+ installed
@@ -11,7 +11,7 @@
 # Usage:
 #   chmod +x run_tlc.sh
 #   ./run_tlc.sh                    # Run all specs
-#   ./run_tlc.sh OctopusSafety      # Run specific spec
+#   ./run_tlc.sh EvolvbftSafety      # Run specific spec
 # ============================================================================
 
 set -euo pipefail
@@ -88,14 +88,14 @@ run_spec() {
 main() {
     check_prereqs
 
-    local specs=("OctopusSafety" "OctopusMultiLeader" "OctopusReconfiguration" "OctopusComposed")
+    local specs=("EvolvbftSafety" "EvolvbftMultiLeader" "EvolvbftReconfiguration" "EvolvbftComposed")
 
     if [[ $# -gt 0 ]]; then
         specs=("$@")
     fi
 
     echo "╔══════════════════════════════════════════════════════╗"
-    echo "║  Octopus BFT — TLA+ Model Checking                 ║"
+    echo "║  Evolv-BFT — TLA+ Model Checking                 ║"
     echo "║  Specs: ${#specs[@]}                                         ║"
     echo "╚══════════════════════════════════════════════════════╝"
     echo ""

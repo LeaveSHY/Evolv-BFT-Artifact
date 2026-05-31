@@ -1,0 +1,207 @@
+# ============================================================================
+# Evolv-BFT — StatefulSet (1000 nodes) — Production Deployment Manifest
+# ============================================================================
+# Used for the 1000-replica consensus experiment reported in §VI (RQ1).
+# Prerequisite: each pod must receive `/config/manifests/node-<ordinal>-manifest.json`
+# generated from a stable genesis manifest. Multi-node Evolv-BFT now refuses
+# ephemeral bootstrap without these runtime manifests.
+# This manifest set must be mounted via a read-only volume named `manifests-vol`.
+# Each pod gets a stable hostname: evolvbft-{0..999}
+# DNS:  evolvbft-{i}.evolvbft-headless.default.svc.cluster.local
+#
+# The init container extracts the ordinal index from the hostname and writes
+# startup arguments to a shared volume so the main container can read them.
+#
+# Evolv-BFT uses libp2p with DHT/mDNS discovery — the --peers flag is left
+# empty so nodes discover each other via the headless DNS SRV records and
+# libp2p's built-in discovery. The entrypoint script seeds a few bootstrap
+# peers (ordinals 0-4) for initial connectivity.
+# ============================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: evolvbft
+  namespace: default
+  labels:
+    app: evolvbft
+    component: consensus
+spec:
+  serviceName: evolvbft-headless
+  replicas: 1000
+  podManagementPolicy: Parallel          # Fast parallel rollout
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: evolvbft
+  template:
+    metadata:
+      labels:
+        app: evolvbft
+        component: consensus
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9000"
+        prometheus.io/path: "/metrics"
+    spec:
+      terminationGracePeriodSeconds: 30
+
+      # --- Anti-affinity: spread pods across physical nodes ----------------
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - evolvbft
+                topologyKey: kubernetes.io/hostname
+
+      # --- Topology spread for even distribution ---------------------------
+      topologySpreadConstraints:
+        - maxSkew: 5
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: evolvbft
+        - maxSkew: 10
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: evolvbft
+
+      # --- Init container: compute node-id from hostname ordinal -----------
+      initContainers:
+        - name: init-config
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              # Extract ordinal from hostname (e.g., evolvbft-42 → 42)
+              ORDINAL=${HOSTNAME##*-}
+              echo "Node ordinal: ${ORDINAL}"
+
+              # Total validators from configmap (env)
+              TOTAL=${EVOLVBFT_TOTAL_NODES:-1000}
+              INSTANCES=${EVOLVBFT_INSTANCES:-5}
+              BATCH=${EVOLVBFT_BATCH_TXS:-2048}
+              TIMEOUT=${EVOLVBFT_TIMEOUT_MS:-1000}
+              INITIAL_VALIDATORS=${EVOLVBFT_INITIAL_VALIDATORS:-1000}
+
+              # Write args file consumed by entrypoint
+              cat > /config/args <<EOF
+              -id=${ORDINAL}
+              -port=8080
+              -http=9000
+              -total-nodes=${TOTAL}
+              -initial-validators=${INITIAL_VALIDATORS}
+              -instances=${INSTANCES}
+              -batch-txs=${BATCH}
+              -timeout-ms=${TIMEOUT}
+              -inbound-msg-queue=4096
+              -inbound-tx-queue=32768
+              -orderer-pending-cap=32768
+              -consensus-topic=evolvbft-consensus
+              -manifest=/config/manifests/node-${ORDINAL}-manifest.json
+              EOF
+              echo "Config written for node ${ORDINAL}"
+          envFrom:
+            - configMapRef:
+                name: evolvbft-config
+          volumeMounts:
+            - name: config-vol
+              mountPath: /config
+            - name: manifests-vol
+              mountPath: /config/manifests
+              readOnly: true
+
+      # --- Main container --------------------------------------------------
+      containers:
+        - name: evolvbft
+          image: evolvbft:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              # Read generated args (strip leading whitespace)
+              ARGS=$(cat /config/args | sed 's/^[[:space:]]*//' | tr '\n' ' ')
+              echo "Starting evolvbft with: ${ARGS}"
+              exec evolvbft ${ARGS}
+          ports:
+            - name: p2p
+              containerPort: 8080
+              protocol: TCP
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: evolvbft-config
+          volumeMounts:
+            - name: config-vol
+              mountPath: /config
+            - name: manifests-vol
+              mountPath: /config/manifests
+              readOnly: true
+            - name: data
+              mountPath: /data
+
+          # --- Resource limits (tuned for 1000-node clusters) ---------------
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+
+          # --- Probes -------------------------------------------------------
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          startupProbe:
+            httpGet:
+              path: /metrics
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30      # up to 150s for slow starts
+
+      volumes:
+        - name: config-vol
+          emptyDir: {}
+        - name: manifests-vol
+          persistentVolumeClaim:
+            claimName: evolvbft-manifests
+
+  # --- Persistent volume for each pod ------------------------------------
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          app: evolvbft
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

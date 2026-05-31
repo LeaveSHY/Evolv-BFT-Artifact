@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Octopus BFT — Metrics Collection & Analysis Script
+# Evolv-BFT — Metrics Collection & Analysis Script
 # ============================================================================
-# Polls the /metrics and /network endpoints of N Octopus nodes at a
+# Polls the /metrics and /network endpoints of N Evolv-BFT nodes at a
 # configurable interval and aggregates:
 #   - TPS (throughput)
 #   - Latency percentiles (p50/p95/p99)
@@ -109,7 +109,7 @@ build_endpoints() {
                 node_idx=$(( (i * NODES) / poll_count ))
             fi
             local local_port=$((31000 + i))
-            kubectl port-forward "pod/octopus-${node_idx}" "${local_port}:9000" \
+            kubectl port-forward "pod/evolvbft-${node_idx}" "${local_port}:9000" \
                 --namespace=default &>/dev/null &
             endpoints+=("http://localhost:${local_port}")
         done
@@ -376,7 +376,7 @@ generate_final_summary() {
 
     {
         echo "============================================================"
-        echo "  Octopus BFT — Metrics Collection Summary"
+        echo "  Evolv-BFT — Metrics Collection Summary"
         echo "============================================================"
         echo "  Collection period:   ${first_ts} → ${last_ts}"
         echo "  Samples:             ${total_rows}"

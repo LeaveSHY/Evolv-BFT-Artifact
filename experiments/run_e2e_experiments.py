@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Octopus End-to-End Integration Experiment.
+"""Evolv-BFT End-to-End Integration Experiment.
 
 Addresses APEX Review C2 (no end-to-end experiment) and P0-3 (missing simple
 adaptive baselines).  Simultaneously validates Proposition (prop:marl-necessity)
@@ -16,7 +16,7 @@ Baselines (same pipeline, only the Controller module differs):
   CUSUM          -- per-instance CUSUM detection, fixed threshold
   EXP3+Safety    -- per-instance EXP3 bandit + safety filter
   Centralized UCB -- global UCB scheduler without multi-agent coordination
-  Full Octopus   -- MARL-CTDE + MOISE+ safety filter
+  Full Evolv-BFT   -- MARL-CTDE + MOISE+ safety filter
 
 Usage:
   python run_e2e_experiments.py [--output-dir DIR] [--seeds 7 13 42 97 137]
@@ -554,7 +554,7 @@ class CentralizedUCBController(E2EControllerBase):
     """Centralized UCB over all instances without multi-agent coordination.
 
     Validates Proposition (ii): exponential arm space.
-    Has a global view (like Octopus) but treats each instance independently
+    Has a global view (like Evolv-BFT) but treats each instance independently
     for threshold selection. No peak tracking or cross-instance migration
     detection. Uses EWMA + adaptive threshold.
     """
@@ -593,7 +593,7 @@ class CentralizedUCBController(E2EControllerBase):
 class GossipThresholdController(E2EControllerBase):
     """Cross-instance gossip with EMA threshold eviction.
 
-    Has authenticated cross-instance features (like Octopus) but uses a
+    Has authenticated cross-instance features (like Evolv-BFT) but uses a
     fixed-parameter EMA threshold for eviction decisions. No pre-argmax
     safety mask and no MARL optimization.
 
@@ -601,7 +601,7 @@ class GossipThresholdController(E2EControllerBase):
     cross-instance communication without coupled constraint enforcement
     is insufficient for sublinear damage.
 
-    Key differences from Octopus:
+    Key differences from Evolv-BFT:
       - Uses same cross-instance features (d_feat=5)
       - EMA threshold eviction (stationary mapping)
       - No safety mask (may violate n_v >= 3f_v + 1)
@@ -660,8 +660,8 @@ class GossipThresholdController(E2EControllerBase):
         }
 
 
-class OctopusMARLController(E2EControllerBase):
-    """Full Octopus: Safe Factored Actor-Critic (SFAC) with FACMAC CTDE.
+class EvolvbftMARLController(E2EControllerBase):
+    """Full Evolv-BFT: Safe Factored Actor-Critic (SFAC) with FACMAC CTDE.
 
     Architecture matching paper Section III-D (FACMAC, Peng et al. 2021):
       - Per-instance deterministic actors: mu_i(o_i; phi_i) with shared weights
@@ -673,7 +673,7 @@ class OctopusMARLController(E2EControllerBase):
       - Safety filter + peak tracking + cross-instance coordination
       - Target networks with soft update for training stability
     """
-    name = "octopus"
+    name = "evolvbft"
 
     def __init__(self, lr: float = 0.003, m: int = 4, **facmac_overrides):
         self.lr = lr
@@ -805,7 +805,7 @@ class OctopusMARLController(E2EControllerBase):
 class SingleAgentPPOController(E2EControllerBase):
     """Single-agent PPO with global observation → global action.
 
-    Uses the same feature space (Eq.5) and reward function as Octopus,
+    Uses the same feature space (Eq.5) and reward function as Evolv-BFT,
     but replaces the MARL (FACMAC-CTDE) architecture with a standard
     single-agent PPO. The global state is the concatenation of all
     per-instance observations, and the policy outputs actions for all
@@ -813,7 +813,7 @@ class SingleAgentPPOController(E2EControllerBase):
     no per-agent credit assignment.
 
     Purpose: validates that the multi-agent coordination (CTDE, role
-    decomposition, monotonic mixer) is the source of Octopus's advantage,
+    decomposition, monotonic mixer) is the source of Evolv-BFT's advantage,
     not RL training alone.
     """
     name = "ppo"
@@ -1055,7 +1055,7 @@ class SingleAgentPPOController(E2EControllerBase):
 # Ablation Variants (disable one component at a time)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class OctopusNoSafety(OctopusMARLController):
+class EvolvbftNoSafety(EvolvbftMARLController):
     """Ablation: disable safety filter (uncertainty gating).
 
     Without the safety filter, the controller detects purely based on
@@ -1068,7 +1068,7 @@ class OctopusNoSafety(OctopusMARLController):
         super().__init__(lr=lr, m=m, use_safety_filter=False)
 
 
-class OctopusNoPeak(OctopusMARLController):
+class EvolvbftNoPeak(EvolvbftMARLController):
     """Ablation: disable peak tracking (persistent memory).
 
     Without peak tracking, the controller loses memory of past attack
@@ -1080,7 +1080,7 @@ class OctopusNoPeak(OctopusMARLController):
         super().__init__(lr=lr, m=m, use_peak_tracker=False)
 
 
-class OctopusNoCrossInstance(OctopusMARLController):
+class EvolvbftNoCrossInstance(EvolvbftMARLController):
     """Ablation: disable cross-instance coordination.
 
     Validates Proposition (marl-necessity) Part 1: without cross-instance
@@ -1093,7 +1093,7 @@ class OctopusNoCrossInstance(OctopusMARLController):
         super().__init__(lr=lr, m=m, use_cross_instance=False)
 
 
-class OctopusNoReconfig(OctopusMARLController):
+class EvolvbftNoReconfig(EvolvbftMARLController):
     """Ablation: disable reconfiguration.
 
     Without reconfiguration, the system cannot rebalance nodes in
@@ -1111,7 +1111,7 @@ class OctopusNoReconfig(OctopusMARLController):
         return result
 
 
-class OctopusIndependent(OctopusMARLController):
+class EvolvbftIndependent(EvolvbftMARLController):
     """Ablation: truly independent per-instance controllers (no CTDE).
 
     Uses VDN (sum) instead of monotonic mixer, disabling cross-instance
@@ -1184,7 +1184,7 @@ def run_e2e(cfg: E2EConfig, controller: E2EControllerBase,
     reconfig = ReconfigurationEngine(cfg.reconfig_cooldown)
 
     # Train MARL controller if needed
-    if train_first and isinstance(controller, OctopusMARLController):
+    if train_first and isinstance(controller, EvolvbftMARLController):
         # Re-initialize FACMAC weights for each seed (independent training runs)
         controller._init_facmac(controller.m_config)
         controller.set_train_mode()
@@ -1429,12 +1429,12 @@ def _make_controller(name: str, lr: float = 0.003):
         "exp3": EXP3SafetyController,
         "ucb": CentralizedUCBController,
         "ppo": lambda: SingleAgentPPOController(m=4),
-        "octopus": lambda: OctopusMARLController(lr=lr),
-        "no_safety": lambda: OctopusNoSafety(lr=lr),
-        "no_peak": lambda: OctopusNoPeak(lr=lr),
-        "no_cross": lambda: OctopusNoCrossInstance(lr=lr),
-        "no_reconfig": lambda: OctopusNoReconfig(lr=lr),
-        "independent": lambda: OctopusIndependent(lr=lr),
+        "evolvbft": lambda: EvolvbftMARLController(lr=lr),
+        "no_safety": lambda: EvolvbftNoSafety(lr=lr),
+        "no_peak": lambda: EvolvbftNoPeak(lr=lr),
+        "no_cross": lambda: EvolvbftNoCrossInstance(lr=lr),
+        "no_reconfig": lambda: EvolvbftNoReconfig(lr=lr),
+        "independent": lambda: EvolvbftIndependent(lr=lr),
     }
     factory = _map[name]
     return factory() if callable(factory) else factory
@@ -1454,14 +1454,14 @@ def _run_single_job(cfg_dict: dict, ctrl_name: str, seed: int,
 
 def run_all_e2e(cfg: E2EConfig, controller_filter: list[str] | None = None) -> dict:
     """Run all controllers across all seeds (parallel if n_workers > 1)."""
-    controller_names = ["cusum", "gossip_thresh", "exp3", "ucb", "octopus"]
+    controller_names = ["cusum", "gossip_thresh", "exp3", "ucb", "evolvbft"]
     if controller_filter:
         controller_names = [c for c in controller_filter
                             if c in {"cusum", "gossip_thresh", "exp3", "ucb",
-                                     "octopus", "ppo"}]
+                                     "evolvbft", "ppo"}]
     elif "ppo" not in controller_names:
         pass  # ppo not in default set, must be explicitly requested
-    marl_set = {"octopus", "ppo"}  # controllers that need training
+    marl_set = {"evolvbft", "ppo"}  # controllers that need training
 
     if cfg.n_workers > 1:
         return _run_parallel(cfg, controller_names, marl_set)
@@ -1543,7 +1543,7 @@ def _run_parallel(cfg: E2EConfig, controller_names: list,
 
 
 def run_ablation_e2e(cfg: E2EConfig) -> dict:
-    """Run ablation variants: Full Octopus + 5 component-disabled variants.
+    """Run ablation variants: Full Evolv-BFT + 5 component-disabled variants.
 
     Uses a moderate-signal scenario (signal_byz_active=0.30) where all
     components are necessary but the ES optimizer can still learn effective
@@ -1577,7 +1577,7 @@ def run_ablation_e2e(cfg: E2EConfig) -> dict:
         quick=cfg.quick,
     )
 
-    ablation_names = ["octopus", "no_safety", "no_peak", "no_cross",
+    ablation_names = ["evolvbft", "no_safety", "no_peak", "no_cross",
                       "no_reconfig", "independent"]
 
     print(f"\n  [Ablation uses moderate-signal regime: signal_byz_active={ablation_cfg.signal_byz_active}]")
@@ -1659,9 +1659,9 @@ def format_ablation_table(summary: dict) -> str:
                 r"& \textbf{Reconfigs} & \textbf{Tput (ktx/s)} $\uparrow$ \\")
     rows.append(r"\midrule")
 
-    order = ["octopus", "no_safety", "no_peak", "no_cross", "no_reconfig", "independent"]
+    order = ["evolvbft", "no_safety", "no_peak", "no_cross", "no_reconfig", "independent"]
     labels = {
-        "octopus": r"Full Octopus",
+        "evolvbft": r"Full Evolv-BFT",
         "no_safety": r"$-$ Safety filter",
         "no_peak": r"$-$ Peak tracking",
         "no_cross": r"$-$ Cross-instance coord.",
@@ -1679,7 +1679,7 @@ def format_ablation_table(summary: dict) -> str:
         rec = f"{s['reconfig_count_mean']:.0f}"
         tput = f"{s['avg_throughput_mean']:.1f}"
         label = labels.get(name, name)
-        if name == "octopus":
+        if name == "evolvbft":
             d_t = r"\textbf{" + d_t + "}"
         row = f"{label} & {d_t} & {lat} & {viol} & {rec} & {tput} \\\\"
         rows.append(row)
@@ -1730,7 +1730,7 @@ def aggregate_results(all_results: dict) -> dict:
 
 
 def compute_statistical_tests(all_results: dict) -> dict:
-    """Compute pairwise Mann-Whitney U tests (Octopus vs each baseline).
+    """Compute pairwise Mann-Whitney U tests (Evolv-BFT vs each baseline).
 
     Returns dict with p-values and effect sizes for D(T) metric.
     Paper claims significance at p<0.05.
@@ -1741,13 +1741,13 @@ def compute_statistical_tests(all_results: dict) -> dict:
         print("[WARN] scipy not found; statistical tests skipped")
         return {}
 
-    if "octopus" not in all_results:
+    if "evolvbft" not in all_results:
         return {}
 
-    oct_dts = [r["D_T"] for r in all_results["octopus"]]
+    oct_dts = [r["D_T"] for r in all_results["evolvbft"]]
     tests = {}
     for name, runs in all_results.items():
-        if name == "octopus":
+        if name == "evolvbft":
             continue
         base_dts = [r["D_T"] for r in runs]
         if len(oct_dts) < 2 or len(base_dts) < 2:
@@ -1782,10 +1782,10 @@ def generate_fig_e2e_damage(summary: dict, T: int, output_path: str):
         "gossip_thresh": {"color": "#8c564b", "ls": "--", "label": "Gossip+Thresh."},
         "exp3":    {"color": "#ff7f0e", "ls": "-.",  "label": "EXP3+Safety"},
         "ucb":     {"color": "#9467bd", "ls": ":",   "label": "Centralized UCB"},
-        "octopus": {"color": "#2ca02c", "ls": "-",   "label": "Octopus (MARL-CTDE)"},
+        "evolvbft": {"color": "#2ca02c", "ls": "-",   "label": "Evolv-BFT (MARL-CTDE)"},
     }
 
-    for name in ["cusum", "gossip_thresh", "exp3", "ucb", "octopus"]:
+    for name in ["cusum", "gossip_thresh", "exp3", "ucb", "evolvbft"]:
         if name not in summary:
             continue
         data = summary[name]
@@ -1824,10 +1824,10 @@ def generate_fig_e2e_throughput(all_results: dict, cfg: E2EConfig, output_path: 
         "gossip_thresh": {"color": "#8c564b", "ls": "--", "label": "Gossip+Thresh."},
         "exp3":    {"color": "#ff7f0e", "ls": "-.",  "label": "EXP3+Safety"},
         "ucb":     {"color": "#9467bd", "ls": ":",   "label": "Centralized UCB"},
-        "octopus": {"color": "#2ca02c", "ls": "-",   "label": "Octopus (MARL-CTDE)"},
+        "evolvbft": {"color": "#2ca02c", "ls": "-",   "label": "Evolv-BFT (MARL-CTDE)"},
     }
 
-    for name in ["cusum", "gossip_thresh", "exp3", "ucb", "octopus"]:
+    for name in ["cusum", "gossip_thresh", "exp3", "ucb", "evolvbft"]:
         if name not in all_results:
             continue
         runs = all_results[name]
@@ -1878,10 +1878,10 @@ def format_e2e_table(summary: dict) -> str:
     rows.append(r"\begin{tabular}{@{}l ccccc@{}}")
     rows.append(r"\toprule")
     rows.append(r"\textbf{Metric} & \textbf{CUSUM} & \textbf{Gossip+Thresh.} & \textbf{EXP3+Safety} "
-                r"& \textbf{Cent.\ UCB} & \textbf{Octopus} \\")
+                r"& \textbf{Cent.\ UCB} & \textbf{Evolv-BFT} \\")
     rows.append(r"\midrule")
 
-    order = ["cusum", "gossip_thresh", "exp3", "ucb", "octopus"]
+    order = ["cusum", "gossip_thresh", "exp3", "ucb", "evolvbft"]
 
     def _val(name, key, fmt="{:.0f}"):
         if name in summary and key in summary[name]:
@@ -1981,7 +1981,7 @@ def run_multi_T(base_cfg: E2EConfig, T_values: list[int]) -> dict:
         "gossip_thresh": lambda: GossipThresholdController(),
         "exp3": lambda: EXP3SafetyController(),
         "ucb": lambda: CentralizedUCBController(),
-        "octopus": lambda cfg: OctopusMARLController(lr=cfg.lr),
+        "evolvbft": lambda cfg: EvolvbftMARLController(lr=cfg.lr),
     }
 
     results: dict[str, dict[int, list[float]]] = {}
@@ -2011,13 +2011,13 @@ def run_multi_T(base_cfg: E2EConfig, T_values: list[int]) -> dict:
         )
 
         for name, factory in controllers_factory.items():
-            if name == "octopus":
+            if name == "evolvbft":
                 ctrl = factory(cfg)
             else:
                 ctrl = factory()
             seed_dts = []
             for s in cfg.seeds:
-                train_first = (name == "octopus")
+                train_first = (name == "evolvbft")
                 result = run_e2e(cfg, ctrl, s, train_first=train_first)
                 seed_dts.append(result["D_T"])
             results[name][T] = seed_dts
@@ -2066,10 +2066,10 @@ def generate_fig_multi_T(multi_T_results: dict, output_path: str):
         "gossip_thresh": {"color": "#8c564b", "marker": "v", "label": "Gossip+Thresh."},
         "exp3":    {"color": "#ff7f0e", "marker": "^", "label": "EXP3+Safety"},
         "ucb":     {"color": "#9467bd", "marker": "D", "label": "Cent. UCB"},
-        "octopus": {"color": "#2ca02c", "marker": "o", "label": "Octopus"},
+        "evolvbft": {"color": "#2ca02c", "marker": "o", "label": "Evolv-BFT"},
     }
 
-    for name in ["cusum", "gossip_thresh", "exp3", "ucb", "octopus"]:
+    for name in ["cusum", "gossip_thresh", "exp3", "ucb", "evolvbft"]:
         if name not in multi_T_results:
             continue
         data = multi_T_results[name]
@@ -2112,8 +2112,8 @@ def generate_fig_multi_T(multi_T_results: dict, output_path: str):
 def format_multi_T_table(multi_T_results: dict) -> str:
     """Generate tab_scaling.tex: D(T) at each T + fitted beta."""
     all_Ts = sorted(set(T for data in multi_T_results.values() for T in data.keys()))
-    controllers = ["cusum", "gossip_thresh", "exp3", "ucb", "octopus"]
-    labels = {"cusum": "CUSUM", "gossip_thresh": "Gossip+Thresh.", "exp3": "EXP3+Safety", "ucb": "Cent.\\ UCB", "octopus": "Octopus"}
+    controllers = ["cusum", "gossip_thresh", "exp3", "ucb", "evolvbft"]
+    labels = {"cusum": "CUSUM", "gossip_thresh": "Gossip+Thresh.", "exp3": "EXP3+Safety", "ucb": "Cent.\\ UCB", "evolvbft": "Evolv-BFT"}
 
     rows = []
     n_cols = len(all_Ts) + 2  # name + T columns + beta
@@ -2166,7 +2166,7 @@ def main():
     parser.add_argument("--quick", action="store_true",
                         help="Quick smoke test (1 seed, 100 epochs)")
     parser.add_argument("--ablation", action="store_true",
-                        help="Run ablation study (Full Octopus + 5 disabled variants)")
+                        help="Run ablation study (Full Evolv-BFT + 5 disabled variants)")
     parser.add_argument("--ablation-only", action="store_true", dest="ablation_only",
                         help="Run ONLY ablation study, skip E2E baselines")
     parser.add_argument("--multi-T", action="store_true", dest="multi_T",
@@ -2178,7 +2178,7 @@ def main():
     parser.add_argument("--parallel", type=int, default=1, metavar="N",
                         help="Number of parallel workers (1=serial, N>1 uses ProcessPoolExecutor)")
     parser.add_argument("--controllers", nargs="+", type=str, default=None,
-                        help="Run only specified controllers (e.g. --controllers ppo octopus)")
+                        help="Run only specified controllers (e.g. --controllers ppo evolvbft)")
     args = parser.parse_args()
 
     cfg = E2EConfig(
@@ -2222,11 +2222,11 @@ def main():
             }
         write_json(str(out / "e2e_summary.json"), summary_no_curves)
 
-        # Statistical tests (Mann-Whitney U, Octopus vs baselines)
+        # Statistical tests (Mann-Whitney U, Evolv-BFT vs baselines)
         stat_tests = compute_statistical_tests(all_results)
         if stat_tests:
             write_json(str(out / "statistical_tests.json"), stat_tests)
-            print(f"\n  Statistical Tests (Octopus vs baselines, D(T)):")
+            print(f"\n  Statistical Tests (Evolv-BFT vs baselines, D(T)):")
             for name, t in stat_tests.items():
                 sig = "✓" if t["significant"] else "✗"
                 print(f"    {name}: U={t['U_statistic']:.0f}, p={t['p_value']:.4f}, "
@@ -2330,7 +2330,7 @@ def main():
         print(f"{'='*60}")
         print(f"{'Controller':<18} {'beta':>8} {'R^2':>8}")
         print("-" * 36)
-        for name in ["cusum", "gossip_thresh", "exp3", "ucb", "octopus"]:
+        for name in ["cusum", "gossip_thresh", "exp3", "ucb", "evolvbft"]:
             if name in multi_T_summary:
                 s = multi_T_summary[name]
                 print(f"{name:<18} {s['beta']:>8.3f} {s['r2']:>8.3f}")
@@ -2348,7 +2348,7 @@ def main():
     print(f"{'Controller':<18} {'D(T)':>10} {'Det.Lat':>10} {'Safety':>8} "
           f"{'Reconf':>8} {'Recov':>8} {'Tput':>10}")
     print("-" * 74)
-    for name in ["cusum", "gossip_thresh", "exp3", "ucb", "octopus"]:
+    for name in ["cusum", "gossip_thresh", "exp3", "ucb", "evolvbft"]:
         if name not in summary:
             continue
         s = summary[name]
@@ -2363,7 +2363,7 @@ def main():
         print(f"{'Variant':<22} {'D(T)':>10} {'Det.Lat':>10} {'Safety':>8} "
               f"{'Reconf':>8} {'Tput':>10}")
         print("-" * 70)
-        for name in ["octopus", "no_safety", "no_peak", "no_cross",
+        for name in ["evolvbft", "no_safety", "no_peak", "no_cross",
                       "no_reconfig", "independent"]:
             if name not in ablation_summary:
                 continue

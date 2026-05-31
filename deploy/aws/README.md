@@ -1,14 +1,14 @@
-# Octopus BFT — AWS EC2 1000-Node Deployment & Benchmark
+# Evolv-BFT — AWS EC2 1000-Node Deployment & Benchmark
 
 ## Overview
 
-This directory contains the Terraform infrastructure and orchestration scripts used to deploy and benchmark 1000 Octopus BFT replicas across 100 EC2 c5.xlarge instances (4 vCPU, 8 GiB each). This is the production deployment that produces the throughput and latency results reported in the paper (§VI, RQ1).
+This directory contains the Terraform infrastructure and orchestration scripts used to deploy and benchmark 1000 Evolv-BFT replicas across 100 EC2 c5.xlarge instances (4 vCPU, 8 GiB each). This is the production deployment that produces the throughput and latency results reported in the paper (§VI, RQ1).
 
 ## Architecture
 
 ```
 100 × EC2 c5.xlarge (4 vCPU, 8 GiB)
-  └── 10 Octopus replicas per VM (Docker containers, --network host)
+  └── 10 Evolv-BFT replicas per VM (Docker containers, --network host)
       └── Total: 1000 replicas
           └── VRF committee size k=25 per view
           └── m=10 parallel consensus lanes
@@ -35,7 +35,7 @@ cp terraform.tfvars.example terraform.tfvars
 | Terraform  | ≥ 1.5   | Infrastructure provisioning|
 | AWS CLI    | v2      | ECR push, S3, EC2 access   |
 | Docker     | 20+     | Image build                |
-| Go         | ≥ 1.22  | Build octopus-genesis      |
+| Go         | ≥ 1.22  | Build evolvbft-genesis      |
 | Python     | ≥ 3.10  | Config generation          |
 
 ### AWS Permissions Required
@@ -72,8 +72,8 @@ If you prefer to run steps individually:
 
 ```bash
 # Generate genesis manifest
-cd ../../src && go build -o cmd/octopus-genesis/octopus-genesis ./cmd/octopus-genesis
-./cmd/octopus-genesis/octopus-genesis -nodes 1000 -out genesis.json -seed ec2-bench
+cd ../../src && go build -o cmd/evolvbft-genesis/evolvbft-genesis ./cmd/evolvbft-genesis
+./cmd/evolvbft-genesis/evolvbft-genesis -nodes 1000 -out genesis.json -seed ec2-bench
 
 # Provision infrastructure
 cd ../../deploy/aws

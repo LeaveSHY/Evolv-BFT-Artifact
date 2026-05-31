@@ -1,7 +1,7 @@
 #!/bin/bash
 # EC2 Deployment Script for Consensus Baseline Comparison
 #
-# Deploys Octopus, Bullshark, and Ladon across 100 EC2 instances
+# Deploys Evolv-BFT, Bullshark, and Ladon across 100 EC2 instances
 # and runs the full benchmark sweep.
 #
 # Usage:
@@ -23,15 +23,15 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Configuration
 INSTANCE_TYPE="c5.xlarge"
 AMI_ID="ami-0c55b159cbfafe1f0"  # Ubuntu 22.04 LTS (us-east-1)
-KEY_NAME="octopus-benchmark"
-SECURITY_GROUP="sg-octopus-bench"
+KEY_NAME="evolvbft-benchmark"
+SECURITY_GROUP="sg-evolvbft-bench"
 N_INSTANCES=100
 REGIONS=("us-east-1" "us-west-2" "eu-west-1" "ap-northeast-1" "ap-southeast-1")
 REPLICAS_SWEEP=(4 16 64 100 400 1000)
 NETWORKS=("wan" "lan")
 
 # Parse arguments
-RUN_OCTOPUS=false
+RUN_EVOLVBFT=false
 RUN_BULLSHARK=false
 RUN_LADON=false
 SCALE=1000
@@ -39,8 +39,8 @@ TEARDOWN=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --all) RUN_OCTOPUS=true; RUN_BULLSHARK=true; RUN_LADON=true ;;
-        --octopus) RUN_OCTOPUS=true ;;
+        --all) RUN_EVOLVBFT=true; RUN_BULLSHARK=true; RUN_LADON=true ;;
+        --evolvbft) RUN_EVOLVBFT=true ;;
         --bullshark) RUN_BULLSHARK=true ;;
         --ladon) RUN_LADON=true ;;
         --scale) SCALE="$2"; shift ;;
@@ -67,7 +67,7 @@ launch_instances() {
             --key-name "${KEY_NAME}" \
             --security-group-ids "${SECURITY_GROUP}" \
             --count "${instances_per_region}" \
-            --tag-specifications "ResourceType=instance,Tags=[{Key=Project,Value=octopus-benchmark}]" \
+            --tag-specifications "ResourceType=instance,Tags=[{Key=Project,Value=evolvbft-benchmark}]" \
             --query 'Instances[*].InstanceId' \
             --output text)
         ALL_IDS+=($IDS)
@@ -144,7 +144,7 @@ if [ "${TEARDOWN}" = true ]; then
 fi
 
 echo "╔══════════════════════════════════════════════════╗"
-echo "║  Octopus Consensus Benchmark - EC2 Deployment   ║"
+echo "║  Evolv-BFT Consensus Benchmark - EC2 Deployment   ║"
 echo "╠══════════════════════════════════════════════════╣"
 echo "║  Instances: ${N_INSTANCES} × ${INSTANCE_TYPE}              ║"
 echo "║  Regions:   ${#REGIONS[@]} (cross-continent WAN)           ║"
@@ -157,8 +157,8 @@ launch_instances
 setup_instances
 
 # Run benchmarks
-if [ "${RUN_OCTOPUS}" = true ]; then
-    run_benchmark_sweep "Octopus"
+if [ "${RUN_EVOLVBFT}" = true ]; then
+    run_benchmark_sweep "Evolv-BFT"
 fi
 if [ "${RUN_BULLSHARK}" = true ]; then
     run_benchmark_sweep "Bullshark"

@@ -28,7 +28,7 @@ def _get_json(url: str) -> dict:
 
 @dataclass
 class ExperimentOrchestrator:
-    octopus_base_url: str
+    evolvbft_base_url: str
     marl_service_url: str
     curriculum: CurriculumSchedule
     checkpoint_dir: Path
@@ -37,8 +37,8 @@ class ExperimentOrchestrator:
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         for step in range(steps):
             context = self.curriculum.context_for_step(step)
-            _post_json(f"{self.octopus_base_url}/adaptive/context", context)
-            adaptive_snapshot = _get_json(f"{self.octopus_base_url}/adaptive")
+            _post_json(f"{self.evolvbft_base_url}/adaptive/context", context)
+            adaptive_snapshot = _get_json(f"{self.evolvbft_base_url}/adaptive")
             last_decision = adaptive_snapshot.get("last_decision", {})
             observation = last_decision.get("observation") or context
             candidate_stage = last_decision.get("candidate") or {}

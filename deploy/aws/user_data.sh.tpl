@@ -1,16 +1,16 @@
 #!/bin/bash
 # ============================================================================
-# Octopus BFT — EC2 User Data (cloud-init)
+# Evolv-BFT — EC2 User Data (cloud-init)
 # ============================================================================
 # This script runs on first boot of each EC2 instance. It:
-#   1. Installs Docker + downloads the Octopus image
+#   1. Installs Docker + downloads the Evolv-BFT image
 #   2. Applies NetEm WAN emulation (if configured)
 #   3. Waits for the manifest volume/S3 bucket to be populated
-#   4. Starts ${replicas_per_vm} Octopus replicas
+#   4. Starts ${replicas_per_vm} Evolv-BFT replicas
 # ============================================================================
 
 set -euo pipefail
-exec > /var/log/octopus-setup.log 2>&1
+exec > /var/log/evolvbft-setup.log 2>&1
 
 VM_INDEX=${vm_index}
 REPLICAS_PER_VM=${replicas_per_vm}
@@ -25,7 +25,7 @@ S3_BUCKET="${s3_manifest_bucket}"
 FIRST_REPLICA_ID=$((VM_INDEX * REPLICAS_PER_VM))
 LAST_REPLICA_ID=$((FIRST_REPLICA_ID + REPLICAS_PER_VM - 1))
 
-echo "=== Octopus VM $VM_INDEX: replicas $FIRST_REPLICA_ID..$LAST_REPLICA_ID ==="
+echo "=== Evolv-BFT VM $VM_INDEX: replicas $FIRST_REPLICA_ID..$LAST_REPLICA_ID ==="
 
 # ── 1. System Setup ────────────────────────────────────────────────────────
 
@@ -57,20 +57,20 @@ elif [[ $BANDWIDTH_MBPS -gt 0 ]]; then
     tc qdisc add dev "$IFACE" root tbf rate ${RATE_KBIT}kbit burst ${BURST}kb latency 50ms
 fi
 
-# ── 3. Pull Octopus Image ──────────────────────────────────────────────────
+# ── 3. Pull Evolv-BFT Image ──────────────────────────────────────────────────
 
 # The orchestrator pushes the image to ECR; pull from there
 if [[ -n "$ECR_REPO" ]]; then
     aws ecr get-login-password --region $(curl -s http://169.254.169.254/latest/meta-data/placement/region) | \
         docker login --username AWS --password-stdin "$ECR_REPO"
     docker pull "$ECR_REPO:latest"
-    docker tag "$ECR_REPO:latest" octopus-bft:latest
+    docker tag "$ECR_REPO:latest" evolvbft:latest
 else
     # Fallback: image pre-loaded via AMI or transferred via S3
-    if ! docker images octopus-bft:latest -q | grep -q .; then
-        echo "Waiting for octopus-bft:latest image..."
+    if ! docker images evolvbft:latest -q | grep -q .; then
+        echo "Waiting for evolvbft:latest image..."
         for i in $(seq 1 60); do
-            if docker images octopus-bft:latest -q | grep -q .; then break; fi
+            if docker images evolvbft:latest -q | grep -q .; then break; fi
             sleep 5
         done
     fi
@@ -78,7 +78,7 @@ fi
 
 # ── 4. Wait for Manifests ──────────────────────────────────────────────────
 
-MANIFEST_DIR="/opt/octopus/manifests"
+MANIFEST_DIR="/opt/evolvbft/manifests"
 mkdir -p "$MANIFEST_DIR"
 
 # Download manifests from S3 if configured
@@ -106,9 +106,9 @@ if ! $ALL_PRESENT; then
     exit 1
 fi
 
-# ── 5. Start Octopus Replicas ──────────────────────────────────────────────
+# ── 5. Start Evolv-BFT Replicas ──────────────────────────────────────────────
 
-NETWORK_NAME="octopus-net"
+NETWORK_NAME="evolvbft-net"
 docker network create "$NETWORK_NAME" 2>/dev/null || true
 
 for rid in $(seq $FIRST_REPLICA_ID $LAST_REPLICA_ID); do
@@ -119,12 +119,12 @@ for rid in $(seq $FIRST_REPLICA_ID $LAST_REPLICA_ID); do
     echo "Starting replica $rid (P2P=$P2P_PORT, HTTP=$HTTP_PORT)"
 
     docker run -d \
-        --name "octopus-$rid" \
+        --name "evolvbft-$rid" \
         --network host \
         --restart unless-stopped \
         -v "$MANIFEST_DIR/node-$rid-manifest.json:/config/manifest.json:ro" \
-        -e "OCTOPUS_NODE_ID=$rid" \
-        octopus-bft:latest \
+        -e "EVOLVBFT_NODE_ID=$rid" \
+        evolvbft:latest \
         -id=$rid \
         -port=$P2P_PORT \
         -http=$HTTP_PORT \
@@ -136,7 +136,7 @@ for rid in $(seq $FIRST_REPLICA_ID $LAST_REPLICA_ID); do
         -inbound-msg-queue=8192 \
         -inbound-tx-queue=65536 \
         -orderer-pending-cap=65536 \
-        -consensus-topic=octopus-consensus \
+        -consensus-topic=evolvbft-consensus \
         -manifest=/config/manifest.json
 done
 
@@ -145,6 +145,6 @@ echo "=== VM $VM_INDEX: All $REPLICAS_PER_VM replicas started ==="
 # ── 6. Signal Ready ────────────────────────────────────────────────────────
 
 # Write a ready marker for the orchestrator to poll
-echo "ready" > /opt/octopus/status
+echo "ready" > /opt/evolvbft/status
 curl -sf "http://localhost:9000/metrics" > /dev/null 2>&1 && \
     echo "First replica HTTP responsive" || true

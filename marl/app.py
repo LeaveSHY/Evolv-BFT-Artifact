@@ -86,7 +86,7 @@ class TrajectorySampleRequest(BaseModel):
 service = PolicyService()
 sfac = SFACBridge()
 torch_sfac = TorchSFACBridge(m_instances=10, train_mode=True)
-app = FastAPI(title="Octopus Unified MARL Service", version="0.3.0")
+app = FastAPI(title="Evolv-BFT Unified MARL Service", version="0.3.0")
 
 def _error_detail(exc: Exception) -> str:
     if isinstance(exc, (FileNotFoundError, PermissionError, OSError)):

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Octopus BFT — Integrated Go + Python MARL Cluster Runner (Linux/macOS)
+# Evolv-BFT — Integrated Go + Python MARL Cluster Runner (Linux/macOS)
 # ============================================================================
 # Launches the Python SFAC service, then starts N Go consensus nodes connected
 # to it via the narrow HTTP interface (d=5 features per agent per epoch).
@@ -56,10 +56,10 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # ── Build Go binaries ──────────────────────────────────────────────────────
-echo "=== Building Octopus Go binaries ==="
+echo "=== Building Evolv-BFT Go binaries ==="
 mkdir -p "$BUILD_DIR"
-(cd "$SRC_DIR" && go build -o "$BUILD_DIR/octopus" ./cmd/octopus)
-(cd "$SRC_DIR" && go build -o "$BUILD_DIR/octopus-genesis" ./cmd/octopus-genesis)
+(cd "$SRC_DIR" && go build -o "$BUILD_DIR/evolvbft" ./cmd/evolvbft)
+(cd "$SRC_DIR" && go build -o "$BUILD_DIR/evolvbft-genesis" ./cmd/evolvbft-genesis)
 
 # ── Check Python environment ───────────────────────────────────────────────
 echo "=== Checking Python MARL environment ==="
@@ -96,7 +96,7 @@ done
 
 # ── Generate genesis manifest ──────────────────────────────────────────────
 echo "=== Generating genesis manifest (nodes=$NODES, seed=$SEED) ==="
-"$BUILD_DIR/octopus-genesis" \
+"$BUILD_DIR/evolvbft-genesis" \
   -nodes="$NODES" \
   -seed="$SEED" \
   -base-host="127.0.0.1" \
@@ -115,7 +115,7 @@ for i in $(seq 0 $((NODES - 1))); do
   HTTP_PORT=$((HTTP_BASE + i))
   LOG_FILE="$SCRIPT_DIR/tmp-node-$i.log"
 
-  "$BUILD_DIR/octopus" \
+  "$BUILD_DIR/evolvbft" \
     -id="$i" -port="$P2P_PORT" -http="$HTTP_PORT" \
     -manifest="$GENESIS_FILE" -total-nodes="$NODES" \
     -initial-validators="$NODES" -instances="$INSTANCES" \
@@ -125,7 +125,7 @@ for i in $(seq 0 $((NODES - 1))); do
     -adaptive-policy-url="$MARL_INFER_URL" \
     -adaptive-interval-ms=5000 \
     -adaptive-trace-path="traces/node-$i-trace.jsonl" \
-    -consensus-topic=octopus-consensus \
+    -consensus-topic=evolvbft-consensus \
     > "$LOG_FILE" 2>&1 &
   NODE_PID=$!
   PIDS+=("$NODE_PID")

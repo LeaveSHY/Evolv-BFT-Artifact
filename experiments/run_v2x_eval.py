@@ -2,12 +2,12 @@
 """
 V2X-Sim Trust Estimation Evaluation.
 
-Evaluates Octopus trust estimation component (Eq.5-6) on vehicular
+Evaluates Evolv-BFT trust estimation component (Eq.5-6) on vehicular
 collaborative perception scenarios (V2X-Sim, Li et al. 2022).
 
 This script:
   1. Simulates V2X collaborative perception with adversarial agents
-  2. Applies Octopus trust estimator (5-dim features + sigmoid classifier)
+  2. Applies Evolv-BFT trust estimator (5-dim features + sigmoid classifier)
   3. Compares against ROBOSAC, ROBUSTV2V, and Adv-Comm baselines
   4. Reports TPR, FPR, AUROC, AP metrics
 
@@ -199,8 +199,8 @@ class V2XSimEnvironment:
 # Trust Estimators
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class OctopusTrustEstimator:
-    """Octopus trust estimator (Eq.5-6) adapted for V2X perception.
+class EvolvbftTrustEstimator:
+    """Evolv-BFT trust estimator (Eq.5-6) adapted for V2X perception.
 
     5-dim feature vector per vehicle per window:
       x_k = (d_k/W, e_k/W, v_k/W, τ_mean_k, σ_τ_k)
@@ -452,7 +452,7 @@ def run_v2x_evaluation(cfg: V2XConfig) -> dict:
         print(f"{'='*60}")
 
         mode_results = {
-            "octopus": {"tpr": [], "fpr": [], "scores": [], "labels": []},
+            "evolvbft": {"tpr": [], "fpr": [], "scores": [], "labels": []},
             "robosac": {"tpr": [], "fpr": [], "scores": [], "labels": []},
             "threshold": {"tpr": [], "fpr": [], "scores": [], "labels": []},
         }
@@ -463,17 +463,17 @@ def run_v2x_evaluation(cfg: V2XConfig) -> dict:
             env = V2XSimEnvironment(cfg, seed, attack_mode)
 
             # Initialize detectors
-            octopus = OctopusTrustEstimator(
+            evolvbft = EvolvbftTrustEstimator(
                 cfg.n_vehicles, cfg.window_W, cfg.ewma_alpha)
             robosac = ROBOSACDefense(
                 cfg.n_vehicles, cfg.robosac_k, cfg.robosac_iters)
             simple = SimpleThresholdDefense(cfg.n_vehicles, threshold=0.5)
 
-            seed_metrics = {"octopus": [], "robosac": [], "threshold": []}
+            seed_metrics = {"evolvbft": [], "robosac": [], "threshold": []}
 
             for scene in range(cfg.n_scenes):
                 env.reset_scene()
-                octopus.reset()
+                evolvbft.reset()
 
                 for frame in range(cfg.n_frames_per_scene):
                     data = env.step()
@@ -482,11 +482,11 @@ def run_v2x_evaluation(cfg: V2XConfig) -> dict:
                     gt_labels = data["gt_labels"]
                     base = data["base_feature"]
 
-                    # Update Octopus trust
-                    octopus.update(features, base)
+                    # Update Evolv-BFT trust
+                    evolvbft.update(features, base)
 
-                    # Octopus detection
-                    oct_probs = octopus.get_fault_probs()
+                    # Evolv-BFT detection
+                    oct_probs = evolvbft.get_fault_probs()
                     oct_detected = oct_probs > cfg.detection_threshold
 
                     # ROBOSAC detection
@@ -500,14 +500,14 @@ def run_v2x_evaluation(cfg: V2XConfig) -> dict:
                         m_oct = evaluate_detector(oct_detected, gt_labels, is_attacking)
                         m_rob = evaluate_detector(rob_detected, gt_labels, is_attacking)
                         m_thr = evaluate_detector(thr_detected, gt_labels, is_attacking)
-                        seed_metrics["octopus"].append(m_oct)
+                        seed_metrics["evolvbft"].append(m_oct)
                         seed_metrics["robosac"].append(m_rob)
                         seed_metrics["threshold"].append(m_thr)
 
                         # Store for AUROC
-                        mode_results["octopus"]["scores"].extend(
+                        mode_results["evolvbft"]["scores"].extend(
                             oct_probs.tolist())
-                        mode_results["octopus"]["labels"].extend(
+                        mode_results["evolvbft"]["labels"].extend(
                             is_attacking.astype(float).tolist())
                         mode_results["robosac"]["scores"].extend(
                             rob_detected.astype(float).tolist())
@@ -515,7 +515,7 @@ def run_v2x_evaluation(cfg: V2XConfig) -> dict:
                             is_attacking.astype(float).tolist())
 
             # Aggregate per-seed metrics
-            for method in ["octopus", "robosac", "threshold"]:
+            for method in ["evolvbft", "robosac", "threshold"]:
                 if seed_metrics[method]:
                     avg_tpr = np.mean([m["tpr"] for m in seed_metrics[method]])
                     avg_fpr = np.mean([m["fpr"] for m in seed_metrics[method]])
@@ -524,7 +524,7 @@ def run_v2x_evaluation(cfg: V2XConfig) -> dict:
                     print(f"    {method:12s}: TPR={avg_tpr:.3f}  FPR={avg_fpr:.3f}")
 
         # Compute AUROC
-        for method in ["octopus", "robosac"]:
+        for method in ["evolvbft", "robosac"]:
             scores = mode_results[method]["scores"]
             labels = mode_results[method]["labels"]
             if HAS_SKLEARN and len(scores) > 0 and len(set(labels)) > 1:
@@ -535,7 +535,7 @@ def run_v2x_evaluation(cfg: V2XConfig) -> dict:
                 print(f"  {method} AUROC={auroc:.3f} AP={ap:.3f}")
 
         # Summary
-        for method in ["octopus", "robosac", "threshold"]:
+        for method in ["evolvbft", "robosac", "threshold"]:
             tprs = mode_results[method]["tpr"]
             fprs = mode_results[method]["fpr"]
             mode_results[method]["tpr_mean"] = float(np.mean(tprs)) if tprs else 0
@@ -570,10 +570,10 @@ def plot_v2x_results(results: dict, output_dir: Path):
     fig_dir = output_dir / "figures"
     fig_dir.mkdir(exist_ok=True)
 
-    methods = ["octopus", "robosac", "threshold"]
-    method_labels = {"octopus": "Octopus", "robosac": "ROBOSAC",
+    methods = ["evolvbft", "robosac", "threshold"]
+    method_labels = {"evolvbft": "Evolv-BFT", "robosac": "ROBOSAC",
                      "threshold": "Threshold"}
-    colors = {"octopus": "#2196F3", "robosac": "#FF9800", "threshold": "#9E9E9E"}
+    colors = {"evolvbft": "#2196F3", "robosac": "#FF9800", "threshold": "#9E9E9E"}
 
     # Bar chart: TPR across attack modes
     attack_modes = list(results.keys())

@@ -1,10 +1,10 @@
 #!/bin/bash
 # Ladon Benchmark Runner
-# Runs Ladon multi-leader BFT under identical workload to Octopus.
+# Runs Ladon multi-leader BFT under identical workload to Evolv-BFT.
 #
 # Usage: ./run_benchmark.sh [n_replicas] [network] [output_dir]
 #
-# Workload parameters (identical to Octopus):
+# Workload parameters (identical to Evolv-BFT):
 #   - Batch size: 512 KB
 #   - Payload: 64 B per transaction
 #   - Duration: 300s per trial

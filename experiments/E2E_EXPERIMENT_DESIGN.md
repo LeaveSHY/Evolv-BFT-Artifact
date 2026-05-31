@@ -86,7 +86,7 @@ GBC: simulated pipelined HotStuff among m=4 primaries (1.09× overhead)
 | **CUSUM** | 每实例独立 CUSUM 检测，固定阈值 | Impossibility Thm — Ω(T) for Case 4 |
 | **EXP3+Safety** | 每实例独立 EXP3 bandit + safety filter | Proposition (i) — cross-instance blindness |
 | **Centralized UCB** | 全局 UCB 调度但无多智能体协调 | Proposition (ii) — exponential arms |
-| **Full Octopus** | MARL-CTDE + MOISE+ + safety filter | O(√T) claim |
+| **Full Evolv-BFT** | MARL-CTDE + MOISE+ + safety filter | O(√T) claim |
 
 每个基线使用**完全相同的 E2E pipeline**——仅替换 MARL Controller 部分。
 
@@ -108,7 +108,7 @@ GBC: simulated pipelined HotStuff among m=4 primaries (1.09× overhead)
 
 基于已有 CP 实验数据和论文理论：
 
-| Metric | CUSUM | EXP3+Safety | UCB | Octopus |
+| Metric | CUSUM | EXP3+Safety | UCB | Evolv-BFT |
 |--------|-------|-------------|-----|---------|
 | D(500) | ~2500 (linear) | ~500 (sub-optimal) | ~490 | ~7 (sublinear) |
 | D(T)/T trend | → constant | → slow decay | → slow decay | → 0 |

@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any, Dict
 
-SCHEMA_VERSION = "octopus-adaptive-v1"
+SCHEMA_VERSION = "evolvbft-adaptive-v1"
 
 
 def _ensure_schema_version(value: Any, path: str = "sample.schema_version", *, required: bool = False) -> str:

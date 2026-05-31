@@ -1,0 +1,36 @@
+# ============================================================================
+# Evolv-BFT — ConfigMap
+# ============================================================================
+# Central configuration consumed by the init container and main container.
+# Modify these values to tune the cluster before deployment.
+# ============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: evolvbft-config
+  namespace: default
+  labels:
+    app: evolvbft
+    component: consensus
+data:
+  # ---- Cluster topology ---------------------------------------------------
+  EVOLVBFT_TOTAL_NODES: "1000"
+  EVOLVBFT_INITIAL_VALIDATORS: "1000"
+
+  # ---- Consensus parameters -----------------------------------------------
+  EVOLVBFT_INSTANCES: "5"
+  EVOLVBFT_BATCH_TXS: "2048"
+  EVOLVBFT_TIMEOUT_MS: "1000"
+
+  # ---- Queue / buffer sizing -----------------------------------------------
+  EVOLVBFT_INBOUND_MSG_QUEUE: "4096"
+  EVOLVBFT_INBOUND_TX_QUEUE: "32768"
+  EVOLVBFT_ORDERER_PENDING_CAP: "32768"
+
+  # ---- Networking ----------------------------------------------------------
+  EVOLVBFT_P2P_PORT: "8080"
+  EVOLVBFT_HTTP_PORT: "9000"
+  EVOLVBFT_CONSENSUS_TOPIC: "evolvbft-consensus"
+
+  # ---- Service DNS (for scripts / sidecars) --------------------------------
+  EVOLVBFT_HEADLESS_SVC: "evolvbft-headless.default.svc.cluster.local"

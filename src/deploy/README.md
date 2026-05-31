@@ -1,8 +1,8 @@
-# Octopus EC2 Benchmark Deployment
+# Evolv-BFT EC2 Benchmark Deployment
 
 ## Overview
 
-This directory contains scripts to deploy Octopus on EC2 and run real-world WAN benchmarks.
+This directory contains scripts to deploy Evolv-BFT on EC2 and run real-world WAN benchmarks.
 
 ## Architecture
 
@@ -17,7 +17,7 @@ This directory contains scripts to deploy Octopus on EC2 and run real-world WAN 
 ## Prerequisites
 
 1. AWS CLI configured with appropriate credentials
-2. SSH key pair named `octopus-bench` in all 4 regions
+2. SSH key pair named `evolvbft-bench` in all 4 regions
 3. Go 1.22+ installed locally (for genesis generation)
 
 ## Quick Start

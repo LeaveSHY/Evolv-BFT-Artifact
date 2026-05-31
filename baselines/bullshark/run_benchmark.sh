@@ -1,13 +1,13 @@
 #!/bin/bash
 # Bullshark Benchmark Runner
-# Runs Narwhal-Bullshark under identical workload to Octopus.
+# Runs Narwhal-Bullshark under identical workload to Evolv-BFT.
 #
 # Usage: ./run_benchmark.sh [n_replicas] [network] [output_dir]
 #   n_replicas: number of nodes (default: 4)
 #   network:    wan|lan (default: wan)
 #   output_dir: where to store results (default: ../results/bullshark/)
 #
-# Workload parameters (identical to Octopus for fair comparison):
+# Workload parameters (identical to Evolv-BFT for fair comparison):
 #   - Batch size: 512 KB
 #   - Payload: 64 B per transaction
 #   - Duration: 300s (5 min) per trial

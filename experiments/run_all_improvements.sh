@@ -4,7 +4,7 @@
 #
 # Usage (on WSL):
 #   source ~/miniconda3/etc/profile.d/conda.sh && conda activate robosac-gpu
-#   cd /mnt/d/Alex/Papers/Experiment/Octopus
+#   cd /mnt/d/Alex/Papers/Experiment/Evolv-BFT
 #   bash experiments/run_all_improvements.sh [--skip-p0] [--skip-p1] [--skip-p3] [--skip-p4]
 #
 # Prerequisites:
@@ -24,7 +24,7 @@ RESULTS_DIR="${ROOT_DIR}/experiments/results/improvements_${TIMESTAMP}"
 V2X_DIR="${ROOT_DIR}/Collaboration-Benchmark"
 V2X_DATA="${V2X_DIR}/V2X-Sim-det/V2X-Sim-det"
 V2X_CKPT="${V2X_DIR}/epoch_49.pth"
-V2X_SCRIPT="${V2X_DIR}/coperception/tools/det/octopus_v2x_experiment.py"
+V2X_SCRIPT="${V2X_DIR}/coperception/tools/det/evolvbft_v2x_experiment.py"
 
 # Parse flags
 SKIP_P0=false
@@ -69,7 +69,7 @@ fi
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # P0: V2X Baseline ε Sweep
-# Purpose: show baselines degrade at high ε, Octopus is robust
+# Purpose: show baselines degrade at high ε, Evolv-BFT is robust
 # ═══════════════════════════════════════════════════════════════════════════════
 if [ "$SKIP_P0" = false ]; then
     echo ""
@@ -158,15 +158,15 @@ if [ "$SKIP_P4" = false ]; then
     cd "$ROOT_DIR/src"
     if command -v go &> /dev/null; then
         # Run the existing Go benchmark with single-bft output
-        go test -v -run TestConsensusBenchmark_WANScaling ./octopus/benchmark/ \
+        go test -v -run TestConsensusBenchmark_WANScaling ./evolvbft/benchmark/ \
             2>&1 | tee "${P4_DIR}/wan_scaling.log"
-        go test -v -run TestConsensusBenchmark_LANScaling ./octopus/benchmark/ \
+        go test -v -run TestConsensusBenchmark_LANScaling ./evolvbft/benchmark/ \
             2>&1 | tee "${P4_DIR}/lan_scaling.log"
-        go test -v -run TestReconfigBenchmark ./octopus/benchmark/ \
+        go test -v -run TestReconfigBenchmark ./evolvbft/benchmark/ \
             2>&1 | tee "${P4_DIR}/reconfig.log"
 
         # Copy generated JSON results
-        cp -f octopus/benchmark/testdata/*.json "$P4_DIR/" 2>/dev/null || true
+        cp -f evolvbft/benchmark/testdata/*.json "$P4_DIR/" 2>/dev/null || true
         echo "[P4] HotStuff benchmark complete. Results in $P4_DIR"
     else
         echo "[P4] Go not found, skipping HotStuff benchmark"

@@ -1,6 +1,6 @@
 #!/bin/bash
-# deploy_ec2.sh — Provision and configure EC2 instances for Octopus benchmark.
-# Prerequisites: aws CLI configured, ssh key named "octopus-bench" in target regions.
+# deploy_ec2.sh — Provision and configure EC2 instances for Evolv-BFT benchmark.
+# Prerequisites: aws CLI configured, ssh key named "evolvbft-bench" in target regions.
 #
 # Usage:
 #   ./deploy_ec2.sh setup    # Create instances in 4 regions
@@ -10,12 +10,12 @@
 set -euo pipefail
 
 # --- Configuration ---
-KEY_NAME="octopus-bench"
+KEY_NAME="evolvbft-bench"
 INSTANCE_TYPE="c5.4xlarge"   # 16 vCPU, 32 GB RAM
 AMI_FAMILY="amzn2"           # Amazon Linux 2 (latest AMI per region)
-SECURITY_GROUP="octopus-bench-sg"
+SECURITY_GROUP="evolvbft-bench-sg"
 TAG_KEY="Project"
-TAG_VALUE="octopus-bench"
+TAG_VALUE="evolvbft-bench"
 NODES_PER_REGION=25
 REGIONS=("us-east-1" "us-west-2" "eu-west-1" "ap-southeast-1")
 
@@ -51,12 +51,12 @@ ensure_security_group() {
   if [ "$sgid" == "None" ] || [ -z "$sgid" ]; then
     sgid=$(aws ec2 create-security-group --region "$region" \
       --group-name "$SECURITY_GROUP" \
-      --description "Octopus benchmark - allow all internal + SSH" \
+      --description "Evolv-BFT benchmark - allow all internal + SSH" \
       --output text --query 'GroupId')
     # Allow SSH
     aws ec2 authorize-security-group-ingress --region "$region" \
       --group-id "$sgid" --protocol tcp --port 22 --cidr 0.0.0.0/0
-    # Allow Octopus ports (8080-8180 for libp2p, 9000-9100 for HTTP API)
+    # Allow Evolv-BFT ports (8080-8180 for libp2p, 9000-9100 for HTTP API)
     aws ec2 authorize-security-group-ingress --region "$region" \
       --group-id "$sgid" --protocol tcp --port 8080-8180 --cidr 0.0.0.0/0
     aws ec2 authorize-security-group-ingress --region "$region" \
@@ -132,7 +132,7 @@ setup() {
   echo "$details" | python3 -m json.tool > "$INSTANCE_FILE"
   echo ""
   echo "Instance details saved to $INSTANCE_FILE"
-  echo "Next: run './setup_nodes.sh' to install Go and deploy Octopus binary"
+  echo "Next: run './setup_nodes.sh' to install Go and deploy Evolv-BFT binary"
 }
 
 teardown() {

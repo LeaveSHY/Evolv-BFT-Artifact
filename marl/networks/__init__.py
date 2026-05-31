@@ -1,4 +1,4 @@
-"""PyTorch networks for Octopus SFAC (Safe Factored Actor-Critic).
+"""PyTorch networks for Evolv-BFT SFAC (Safe Factored Actor-Critic).
 
 Architecture (paper §III-B, Appendix B):
   - Actor: per-agent MLP mapping local observation to continuous action

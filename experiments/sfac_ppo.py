@@ -1,4 +1,4 @@
-"""Safe Factored Actor-Critic (SFAC) with MAPPO for Octopus.
+"""Safe Factored Actor-Critic (SFAC) with MAPPO for Evolv-BFT.
 
 Implements the CTDE (Centralized Training, Decentralized Execution) architecture
 described in Section III-D of the paper. Uses MAPPO (Multi-Agent PPO) where each

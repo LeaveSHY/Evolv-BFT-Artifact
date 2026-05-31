@@ -25,7 +25,7 @@ src/hotstuff_cover
 src/hs
 src/hydra
 
-# Third-party reference repos (cloned, not part of Octopus source)
+# Third-party reference repos (cloned, not part of Evolv-BFT source)
 AdvCollaborativePerception/
 Collaboration-Benchmark/
 acm-ccs-2025-multi-agent-rep/
@@ -53,7 +53,7 @@ experiments/run_all.py
 experiments/run_new_experiments.py
 experiments/run_ndss_*.py
 experiments/run_appendix_experiments.py
-experiments/run_octopus_only.py
+experiments/run_evolvbft_only.py
 experiments/run_e2e_aligned.py
 experiments/run_e2e_v6_ppo.py
 experiments/run_full_cp_experiments.py

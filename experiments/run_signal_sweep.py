@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Signal sensitivity sweep: vary Byzantine signal strength.
 
-Tests Octopus + UCB (best baseline) across signal_byz_active in {0.15, 0.20, 0.30, 0.40, 0.50, 0.60}.
+Tests Evolv-BFT + UCB (best baseline) across signal_byz_active in {0.15, 0.20, 0.30, 0.40, 0.50, 0.60}.
 Uses 3 seeds for speed. Reports D(T), detection_latency, safety_violations.
 """
 
@@ -18,12 +18,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from run_e2e_experiments import (
     E2EConfig, run_e2e,
     CUSUMController, GossipThresholdController,
-    CentralizedUCBController, OctopusMARLController,
+    CentralizedUCBController, EvolvbftMARLController,
 )
 
 SIGNAL_LEVELS = [0.15, 0.20, 0.30, 0.40, 0.50, 0.60]
 SEEDS = (7, 42, 97)
-CONTROLLERS = ["cusum", "ucb", "octopus"]
+CONTROLLERS = ["cusum", "ucb", "evolvbft"]
 
 
 def make_controller(name, cfg):
@@ -32,8 +32,8 @@ def make_controller(name, cfg):
         return CUSUMController()
     elif name == "ucb":
         return CentralizedUCBController()
-    elif name == "octopus":
-        return OctopusMARLController(lr=cfg.lr)
+    elif name == "evolvbft":
+        return EvolvbftMARLController(lr=cfg.lr)
     else:
         raise ValueError(f"Unknown controller: {name}")
 
@@ -72,7 +72,7 @@ def main():
         for ctrl_name in CONTROLLERS:
             print(f"\n  Controller: {ctrl_name}")
             seed_results = []
-            train_first = ctrl_name == "octopus"
+            train_first = ctrl_name == "evolvbft"
 
             for s in SEEDS:
                 ctrl = make_controller(ctrl_name, cfg)

@@ -44,7 +44,7 @@ plt.rcParams['ytick.major.width'] = 0.8
 
 # Nature-inspired color palette
 COLORS = {
-    'octopus': '#1f77b4',       # blue
+    'evolvbft': '#1f77b4',       # blue
     'ppo': '#9467bd',           # purple
     'cusum': '#d62728',         # red
     'gossip_thresh': '#ff7f0e', # orange
@@ -57,7 +57,7 @@ COLORS = {
 }
 
 LABELS = {
-    'octopus': 'Octopus (MARL-CTDE)',
+    'evolvbft': 'Evolv-BFT (MARL-CTDE)',
     'ppo': 'Single-Agent PPO',
     'cusum': 'CUSUM',
     'gossip_thresh': 'Gossip+Threshold',
@@ -82,7 +82,7 @@ def load_json(path):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def gen_p1_figure(p1_dir: str, output_dir: str):
-    """Generate PPO vs Octopus comparison bar chart."""
+    """Generate PPO vs Evolv-BFT comparison bar chart."""
     results_path = Path(p1_dir) / "e2e_summary.json"
     if not results_path.exists():
         # Try e2e_results.json
@@ -101,7 +101,7 @@ def gen_p1_figure(p1_dir: str, output_dir: str):
     latencies = []
     safety_viols = []
 
-    for name in ['cusum', 'gossip_thresh', 'exp3', 'ucb', 'ppo', 'octopus']:
+    for name in ['cusum', 'gossip_thresh', 'exp3', 'ucb', 'ppo', 'evolvbft']:
         if name not in data:
             continue
         runs = data[name]

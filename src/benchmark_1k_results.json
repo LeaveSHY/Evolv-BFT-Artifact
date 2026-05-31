@@ -18,7 +18,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 318.0745453384014,
       "latency_mean_ms": 136.82327189589728,
       "latency_p50_ms": 136.43968639430543,
@@ -150,7 +150,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 33.841140094248004,
       "latency_mean_ms": 128.60086828870496,
       "latency_p50_ms": 128.27052845039222,
@@ -178,7 +178,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 66.25741610684292,
       "latency_mean_ms": 131.36642675537524,
       "latency_p50_ms": 132.05921630290226,
@@ -206,7 +206,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 129.4782830774773,
       "latency_mean_ms": 134.4472569935407,
       "latency_p50_ms": 134.24730414606393,
@@ -234,7 +234,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 192.34313543622923,
       "latency_mean_ms": 135.75737933552276,
       "latency_p50_ms": 135.89919014810107,
@@ -262,7 +262,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 255.9726130068269,
       "latency_mean_ms": 136.01455089678458,
       "latency_p50_ms": 136.3674306397194,
@@ -290,7 +290,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 318.3061378001266,
       "latency_mean_ms": 136.7237223283688,
       "latency_p50_ms": 136.63104487192714,
@@ -321,7 +321,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 318.0204009564649,
       "latency_mean_ms": 136.8465666639972,
       "latency_p50_ms": 136.99234879553282,
@@ -349,7 +349,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 319.06961490613105,
       "latency_mean_ms": 136.39656666399713,
       "latency_p50_ms": 136.5423487955328,
@@ -377,7 +377,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 319.0111436499529,
       "latency_mean_ms": 136.42156666399708,
       "latency_p50_ms": 136.56734879553284,
@@ -405,7 +405,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 318.22319049463385,
       "latency_mean_ms": 136.75936041101903,
       "latency_p50_ms": 136.39639401727732,
@@ -433,7 +433,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 318.0575303674468,
       "latency_mean_ms": 136.83059146476435,
       "latency_p50_ms": 136.4213940172773,
@@ -461,7 +461,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 317.9645790542498,
       "latency_mean_ms": 136.87059146476437,
       "latency_p50_ms": 136.4613940172773,
@@ -489,7 +489,7 @@
         "FaultFraction": 0.33,
         "ReconfigIntervalMs": 10000
       },
-      "system": "octopus",
+      "system": "evolvbft",
       "throughput_ktxs": 317.06805261625084,
       "latency_mean_ms": 137.2576001930806,
       "latency_p50_ms": 136.73178436884427,

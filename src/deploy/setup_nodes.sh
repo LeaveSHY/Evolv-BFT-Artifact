@@ -1,5 +1,5 @@
 #!/bin/bash
-# setup_nodes.sh — Install Go, build Octopus, generate manifest, distribute to nodes.
+# setup_nodes.sh — Install Go, build Evolv-BFT, generate manifest, distribute to nodes.
 # Reads ec2_instances.json from deploy_ec2.sh output.
 #
 # Usage:
@@ -9,7 +9,7 @@ set -euo pipefail
 
 INSTANCE_FILE="ec2_instances.json"
 GO_VERSION="1.22.4"
-SSH_KEY="~/.ssh/octopus-bench.pem"
+SSH_KEY="~/.ssh/evolvbft-bench.pem"
 SSH_USER="ec2-user"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=10 -i $SSH_KEY"
 NODES_PER_REGION=25
@@ -77,28 +77,28 @@ echo "  Go installed on all machines."
 
 # Step 2: Upload source and build
 echo ""
-echo "--- Step 2: Building Octopus binary ---"
+echo "--- Step 2: Building Evolv-BFT binary ---"
 
 # Create tarball of source (excluding test files to speed up)
-TARBALL="/tmp/octopus-src.tar.gz"
+TARBALL="/tmp/evolvbft-src.tar.gz"
 cd "$(dirname "$0")/.."
 tar czf "$TARBALL" --exclude='*.exe' --exclude='.git' --exclude='$tmp' \
-  go.mod go.sum octopus/ cmd/octopus/ cmd/octopus-genesis/ cmd/loadgen/ cmd/collect-metrics/
+  go.mod go.sum evolvbft/ cmd/evolvbft/ cmd/evolvbft-genesis/ cmd/loadgen/ cmd/collect-metrics/
 
 for ip in "${PUBLIC_IPS[@]}"; do
   (
     echo "  Building on $ip..."
-    scp $SSH_OPTS "$TARBALL" $SSH_USER@"$ip":/tmp/octopus-src.tar.gz
+    scp $SSH_OPTS "$TARBALL" $SSH_USER@"$ip":/tmp/evolvbft-src.tar.gz
     ssh $SSH_OPTS $SSH_USER@"$ip" << 'REMOTE_BUILD'
       export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
-      rm -rf ~/octopus && mkdir -p ~/octopus
-      cd ~/octopus
-      tar xzf /tmp/octopus-src.tar.gz
-      go build -o octopus ./cmd/octopus/
-      go build -o octopus-genesis ./cmd/octopus-genesis/
+      rm -rf ~/evolvbft && mkdir -p ~/evolvbft
+      cd ~/evolvbft
+      tar xzf /tmp/evolvbft-src.tar.gz
+      go build -o evolvbft ./cmd/evolvbft/
+      go build -o evolvbft-genesis ./cmd/evolvbft-genesis/
       go build -o loadgen ./cmd/loadgen/
       go build -o collect-metrics ./cmd/collect-metrics/
-      echo "Build complete: $(ls -la octopus octopus-genesis loadgen collect-metrics)"
+      echo "Build complete: $(ls -la evolvbft evolvbft-genesis loadgen collect-metrics)"
 REMOTE_BUILD
   ) &
 done
@@ -112,7 +112,7 @@ echo "--- Step 3: Generating $TOTAL_NODES-node manifest ---"
 # Generate manifest locally (needs the genesis tool)
 # Build genesis tool locally
 cd "$(dirname "$0")/.."
-go build -o /tmp/octopus-genesis ./cmd/octopus-genesis/
+go build -o /tmp/evolvbft-genesis ./cmd/evolvbft-genesis/
 
 # We need to create a manifest that assigns nodes to machines with correct multiaddrs.
 # Each machine runs NODES_PER_REGION processes with consecutive IDs and ports.
@@ -124,9 +124,9 @@ nodes_per_region = $NODES_PER_REGION
 total = len(instances) * nodes_per_region
 base_port = $BASE_CONSENSUS_PORT
 
-# Generate base manifest with octopus-genesis
+# Generate base manifest with evolvbft-genesis
 result = subprocess.run(
-    ["/tmp/octopus-genesis", f"-nodes={total}", "-out=/tmp/genesis_base.json"],
+    ["/tmp/evolvbft-genesis", f"-nodes={total}", "-out=/tmp/genesis_base.json"],
     capture_output=True, text=True
 )
 if result.returncode != 0:
@@ -178,7 +178,7 @@ MANIFEST_SCRIPT
 echo ""
 echo "--- Step 4: Distributing manifest ---"
 for ip in "${PUBLIC_IPS[@]}"; do
-  scp $SSH_OPTS /tmp/genesis_patched.json $SSH_USER@"$ip":~/octopus/genesis.json &
+  scp $SSH_OPTS /tmp/genesis_patched.json $SSH_USER@"$ip":~/evolvbft/genesis.json &
 done
 wait
 echo "  Manifest distributed."

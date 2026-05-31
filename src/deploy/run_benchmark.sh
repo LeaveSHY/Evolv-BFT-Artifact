@@ -1,5 +1,5 @@
 #!/bin/bash
-# run_benchmark.sh — Start Octopus nodes, inject load, collect metrics.
+# run_benchmark.sh — Start Evolv-BFT nodes, inject load, collect metrics.
 # Orchestrates the full benchmark lifecycle.
 #
 # Usage:
@@ -12,7 +12,7 @@ set -euo pipefail
 EXPERIMENT="${1:-wan_m10}"
 INSTANCE_FILE="ec2_instances.json"
 MAPPING_FILE="node_mapping.json"
-SSH_KEY="~/.ssh/octopus-bench.pem"
+SSH_KEY="~/.ssh/evolvbft-bench.pem"
 SSH_USER="ec2-user"
 SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=10 -i $SSH_KEY"
 RESULTS_DIR="results/${EXPERIMENT}_$(date +%Y%m%d_%H%M%S)"
@@ -74,12 +74,12 @@ TOTAL_NODES=$((${#PUBLIC_IPS[@]} * NODES_PER_MACHINE))
 # --- Step 1: Stop any existing nodes ---
 echo "--- Step 1: Stopping existing nodes ---"
 for ip in "${PUBLIC_IPS[@]}"; do
-  ssh $SSH_OPTS $SSH_USER@"$ip" "pkill -f 'octopus -id' || true" &
+  ssh $SSH_OPTS $SSH_USER@"$ip" "pkill -f 'evolvbft -id' || true" &
 done
 wait
 sleep 2
 
-# --- Step 2: Start Octopus nodes ---
+# --- Step 2: Start Evolv-BFT nodes ---
 echo "--- Step 2: Starting $TOTAL_NODES nodes (m=$INSTANCES) ---"
 
 for idx in "${!PUBLIC_IPS[@]}"; do
@@ -91,8 +91,8 @@ for idx in "${!PUBLIC_IPS[@]}"; do
       http_port=$((9000 + j))
 
       ssh $SSH_OPTS $SSH_USER@"$ip" << REMOTE_START
-        cd ~/octopus
-        nohup ./octopus \
+        cd ~/evolvbft
+        nohup ./evolvbft \
           -id=$node_id \
           -port=$consensus_port \
           -http=$http_port \
@@ -103,7 +103,7 @@ for idx in "${!PUBLIC_IPS[@]}"; do
           -batch-txs=$BATCH_TXS \
           -timeout-ms=$TIMEOUT_MS \
           -manifest=genesis.json \
-          > /tmp/octopus_node_${node_id}.log 2>&1 &
+          > /tmp/evolvbft_node_${node_id}.log 2>&1 &
 REMOTE_START
     done
     echo "  Started $NODES_PER_MACHINE nodes on $ip"
@@ -159,7 +159,7 @@ done
 echo "--- Step 5: Starting metrics collector ---"
 COLLECT_DURATION=$((DURATION + WARMUP + 30))
 ssh $SSH_OPTS $SSH_USER@"${PUBLIC_IPS[0]}" << REMOTE_COLLECT &
-  cd ~/octopus
+  cd ~/evolvbft
   ./collect-metrics \
     -targets="$METRIC_TARGETS" \
     -duration="${COLLECT_DURATION}s" \
@@ -174,7 +174,7 @@ COLLECTOR_PID=$!
 echo "--- Step 6: Starting load generator (rate=$LOAD_RATE tx/s) ---"
 LOAD_DURATION=$((DURATION + WARMUP))
 ssh $SSH_OPTS $SSH_USER@"${PUBLIC_IPS[0]}" << REMOTE_LOAD &
-  cd ~/octopus
+  cd ~/evolvbft
   ./loadgen \
     -targets="$LOAD_TARGETS" \
     -rate=$LOAD_RATE \
@@ -206,14 +206,14 @@ scp $SSH_OPTS $SSH_USER@"${PUBLIC_IPS[0]}":/tmp/collect_metrics.log "$RESULTS_DI
 # Collect node logs (first node of each machine for debugging)
 for idx in "${!PUBLIC_IPS[@]}"; do
   ip="${PUBLIC_IPS[$idx]}"
-  scp $SSH_OPTS $SSH_USER@"$ip":/tmp/octopus_node_$((idx * NODES_PER_MACHINE)).log \
+  scp $SSH_OPTS $SSH_USER@"$ip":/tmp/evolvbft_node_$((idx * NODES_PER_MACHINE)).log \
     "$RESULTS_DIR/node_${idx}_region.log" 2>/dev/null || true
 done
 
 # --- Step 9: Stop all nodes ---
 echo "--- Step 9: Stopping nodes ---"
 for ip in "${PUBLIC_IPS[@]}"; do
-  ssh $SSH_OPTS $SSH_USER@"$ip" "pkill -f 'octopus -id' || true" &
+  ssh $SSH_OPTS $SSH_USER@"$ip" "pkill -f 'evolvbft -id' || true" &
 done
 wait
 

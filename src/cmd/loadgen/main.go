@@ -1,7 +1,7 @@
-// Copyright 2024 Octopus Project
+// Copyright 2024 Evolv-BFT Project
 // Licensed under Apache License 2.0
 
-// loadgen generates sustained transaction load against one or more Octopus nodes.
+// loadgen generates sustained transaction load against one or more Evolv-BFT nodes.
 // It sends HTTP POST requests to the /tx endpoint at a configurable rate.
 //
 // Usage:
@@ -39,7 +39,7 @@ type config struct {
 
 func main() {
 	cfg := config{}
-	flag.StringVar(&cfg.Targets, "targets", "http://127.0.0.1:9000", "Comma-separated list of Octopus node HTTP endpoints")
+	flag.StringVar(&cfg.Targets, "targets", "http://127.0.0.1:9000", "Comma-separated list of Evolv-BFT node HTTP endpoints")
 	flag.IntVar(&cfg.RatePerSec, "rate", 50000, "Target aggregate tx/s injection rate")
 	flag.DurationVar(&cfg.Duration, "duration", 5*time.Minute, "Total benchmark duration")
 	flag.IntVar(&cfg.PayloadBytes, "payload", 64, "Transaction payload size in bytes")

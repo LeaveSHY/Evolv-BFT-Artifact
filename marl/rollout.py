@@ -27,13 +27,13 @@ def _get_json(url: str) -> dict:
 
 @dataclass
 class ScenarioRolloutRunner:
-    octopus_base_url: str
+    evolvbft_base_url: str
     driver: AIoTScenarioDriver
 
     def run_steps(self, steps: int) -> List[dict]:
         snapshots: List[dict] = []
         for step in range(steps):
             context = self.driver.next_context(step)
-            _post_json(f"{self.octopus_base_url}/adaptive/context", context)
-            snapshots.append(_get_json(f"{self.octopus_base_url}/adaptive"))
+            _post_json(f"{self.evolvbft_base_url}/adaptive/context", context)
+            snapshots.append(_get_json(f"{self.evolvbft_base_url}/adaptive"))
         return snapshots

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Octopus BFT — EC2 1000-Node Deployment & Benchmark
+# Evolv-BFT — EC2 1000-Node Deployment & Benchmark
 # ============================================================================
 # Automated end-to-end script for the 1000-replica WAN experiment (§VI RQ1).
-# Deploys Octopus across 100 EC2 c5.xlarge VMs with NetEm WAN emulation
+# Deploys Evolv-BFT across 100 EC2 c5.xlarge VMs with NetEm WAN emulation
 # and measures consensus throughput and latency under production conditions.
 #
 # Steps:
@@ -19,7 +19,7 @@
 # Prerequisites:
 #   - AWS CLI configured with sufficient permissions
 #   - Terraform >= 1.5 installed
-#   - Go >= 1.22 installed (for building octopus-genesis)
+#   - Go >= 1.22 installed (for building evolvbft-genesis)
 #   - Docker installed (for image build)
 #   - SSH key pair registered in EC2
 #
@@ -75,7 +75,7 @@ fi
 
 TOTAL_REPLICAS=$((NUM_VMS * REPLICAS_PER_VM))
 echo "============================================================"
-echo "Octopus EC2 Benchmark"
+echo "Evolv-BFT EC2 Benchmark"
 echo "  Region:          $AWS_REGION"
 echo "  VMs:             $NUM_VMS × $REPLICAS_PER_VM = $TOTAL_REPLICAS replicas"
 echo "  Instances (m):   $INSTANCES"
@@ -89,11 +89,11 @@ mkdir -p "$RESULTS_DIR"
 echo ""
 echo "=== Step 1: Generate $TOTAL_REPLICAS-node genesis manifest ==="
 
-GENESIS_BIN="$ROOT_DIR/src/cmd/octopus-genesis/octopus-genesis"
+GENESIS_BIN="$ROOT_DIR/src/cmd/evolvbft-genesis/evolvbft-genesis"
 if [[ ! -f "$GENESIS_BIN" ]]; then
-    echo "Building octopus-genesis..."
+    echo "Building evolvbft-genesis..."
     cd "$ROOT_DIR/src"
-    go build -o "$GENESIS_BIN" ./cmd/octopus-genesis
+    go build -o "$GENESIS_BIN" ./cmd/evolvbft-genesis
     cd "$SCRIPT_DIR"
 fi
 
@@ -127,7 +127,7 @@ echo "Per-node manifests generated in $MANIFEST_DIR/"
 echo ""
 echo "=== Step 2: Build and push Docker image ==="
 
-ECR_REPO_NAME="octopus-bft"
+ECR_REPO_NAME="evolvbft"
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 ECR_URI="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME"
 
@@ -138,12 +138,12 @@ if [[ "$SKIP_BUILD" == "false" ]]; then
 
     # Build image
     echo "Building Docker image..."
-    docker build -t octopus-bft:latest -f "$ROOT_DIR/deploy/Dockerfile" "$ROOT_DIR"
+    docker build -t evolvbft:latest -f "$ROOT_DIR/deploy/Dockerfile" "$ROOT_DIR"
 
     # Push to ECR
     echo "Pushing to ECR: $ECR_URI"
     aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$ECR_URI"
-    docker tag octopus-bft:latest "$ECR_URI:latest"
+    docker tag evolvbft:latest "$ECR_URI:latest"
     docker push "$ECR_URI:latest"
 fi
 
@@ -151,7 +151,7 @@ fi
 echo ""
 echo "=== Step 3: Upload manifests to S3 ==="
 
-S3_BUCKET="octopus-benchmark-$ACCOUNT_ID-$AWS_REGION"
+S3_BUCKET="evolvbft-benchmark-$ACCOUNT_ID-$AWS_REGION"
 aws s3 mb "s3://$S3_BUCKET" --region "$AWS_REGION" 2>/dev/null || true
 aws s3 sync "$MANIFEST_DIR/" "s3://$S3_BUCKET/manifests/" --quiet
 echo "Manifests uploaded to s3://$S3_BUCKET/manifests/"
@@ -198,7 +198,7 @@ HOSTS_FILE="$RESULTS_DIR/ec2_hosts.txt"
 echo "$PRIVATE_IPS" > "$HOSTS_FILE"
 
 # Regenerate genesis manifest with the actual IPs
-# Each VM hosts $REPLICAS_PER_VM replicas; octopus-genesis assigns sequential ports
+# Each VM hosts $REPLICAS_PER_VM replicas; evolvbft-genesis assigns sequential ports
 "$GENESIS_BIN" \
     -nodes "$TOTAL_REPLICAS" \
     -out "$GENESIS_MANIFEST" \

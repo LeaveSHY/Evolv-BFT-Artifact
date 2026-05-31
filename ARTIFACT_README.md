@@ -1,15 +1,15 @@
-# Octopus Artifact README — Paper ↔ Code Mapping
+# Evolv-BFT Artifact README — Paper ↔ Code Mapping
 
-This document maps every technical claim in the NDSS 2027 Octopus paper to
+This document maps every technical claim in the NDSS 2027 Evolv-BFT paper to
 its concrete implementation file(s) and the experiment scripts that
 produce the reported numbers. It is the canonical reference for artifact
 evaluators and reviewers.
 
-> **Repository layout (relative to this file = Octopus repo root):**
+> **Repository layout (relative to this file = Evolv-BFT repo root):**
 > - Paper sources: `../NDSS 2027_SUBMISSION/*.tex`
-> - Code: this directory (Octopus)
+> - Code: this directory (Evolv-BFT)
 >   - Python (MARL trust manager): `experiments/`
->   - Go (consensus + GBC + integration): `src/octopus/`
+>   - Go (consensus + GBC + integration): `src/evolvbft/`
 
 ---
 
@@ -20,10 +20,10 @@ evaluators and reviewers.
 | FACMAC monotonic mixer Q_tot = g_ψ(s, [Q_1,…,Q_m]), ∂Q_tot/∂Q_i ≥ 0 | Eq.eq:critic, Prop.prop:igm-structural; appendix.tex:2231 | [`MonotonicMixer`](experiments/sfac_facmac.py) (sfac_facmac.py:176) and [`MonotonicMixer`](experiments/sfac_ppo.py) (sfac_ppo.py:71); both use `abs(W)` on hypernet-generated mixer weights | smoke test in commit b75f6a2: `∂Q_tot/∂Q_i ∈ [3.22, 9.00] ≥ 0` |
 | DDPG-style deterministic policy gradient ∇_θi J = E[∇_ai Q_tot · ∇_θi μ_θi(o_i)] | Eq.eq:policy-grad | [`FACMACController._ddpg_update`](experiments/sfac_facmac.py) (sfac_facmac.py around line 700) | smoke test 150 steps + `train_step` returns finite actor/critic loss |
 | Prioritized Experience Replay, \|D\|=1e5, α=0.6, β: 0.4→1.0, batch 256, target soft-update τ=0.005 | appendix.tex:1531; appendix.tex:2237 | [`PrioritizedReplayBuffer`](experiments/sfac_facmac.py) (sfac_facmac.py:261), `_soft_update` helper | hyperparameters in `FACMACConfig` (sfac_facmac.py:46) |
-| Pre-argmax safety filter blocks evictions if n_after < 3f+1+δ_s, preserving IGM | Algorithm 1 lines 13-17, Prop.prop:igm-structural | [`SFACController._safety_filter`](experiments/sfac_ppo.py) (sfac_ppo.py:447); inherited by `FACMACController` | unit tested via `OctopusNoSafety` ablation (run_ablation_hard.py:481) |
+| Pre-argmax safety filter blocks evictions if n_after < 3f+1+δ_s, preserving IGM | Algorithm 1 lines 13-17, Prop.prop:igm-structural | [`SFACController._safety_filter`](experiments/sfac_ppo.py) (sfac_ppo.py:447); inherited by `FACMACController` | unit tested via `EvolvbftNoSafety` ablation (run_ablation_hard.py:481) |
 | Per-instance reward Eq.14 + organisational reward Eq.reward-org with weights λ_1=1.0, λ_2=0.1, λ_3=0.5, λ_4=100, λ_5=0.5, λ_6=1.0 | Eq.14, Eq.reward-org; appendix.tex:1532 | [`SFACConfig`](experiments/sfac_ppo.py) (sfac_ppo.py:111-163) and `FACMACConfig` (sfac_facmac.py:46-119) carry identical λ values | direct constant inspection |
 | 5-dim sigmoid trust classifier f̂ = σ(w·x + b) jointly trained | Eq.5, Eq.6 | [`TrustEstimator`](experiments/sfac_ppo.py) (sfac_ppo.py:92-107) and (sfac_facmac.py:222) | `train_step` shows `trust_loss` decreasing in smoke tests |
-| Asymmetric EWMA: α_ewma=0.10 rising, min(2.5α, 0.35) falling | §III-D (after fix in commit 7811436), appendix.tex:1539 | `SFACController._update_trust` (sfac_ppo.py:241-252) | unit-tested via `OctopusNoPeak` ablation; α=0.10 in `SFACConfig.ewma_alpha` |
+| Asymmetric EWMA: α_ewma=0.10 rising, min(2.5α, 0.35) falling | §III-D (after fix in commit 7811436), appendix.tex:1539 | `SFACController._update_trust` (sfac_ppo.py:241-252) | unit-tested via `EvolvbftNoPeak` ablation; α=0.10 in `SFACConfig.ewma_alpha` |
 | Role decomposition into Sentinel / Commander / Tuner / Guardian | §III-D, Algorithm 1 lines 9-12 | `SFACController._apply_rag` (sfac_ppo.py:521); ch_sentinel/commander/tuner/guardian in `SFACConfig` | RAG hardness constants present and tested in attack variants |
 
 **Key entrypoints:**
@@ -37,18 +37,18 @@ evaluators and reviewers.
 
 | Paper Claim | Location in Paper | Implementation | Verification |
 |---|---|---|---|
-| 1000-replica scale on EC2 (m=10 × n=100) | abstract.tex:11; 6experiments.tex setup | [`TestE2E_1000Node_ClosedLoop`](src/octopus/integration/e2e_1000node_test.go) (line 23) | `go test -run TestE2E_1000Node_ClosedLoop` passes 100 epochs, partition+churn |
-| ≥100 ktx/s throughput, ≤26 ms pipeline | Figure 5 caption ≥200 ktx/s; §VI setup ≤26 ms; Table tab:e2e 264.4 ktx/s | [`TestE2E_1000Node_ThroughputMeasured`](src/octopus/integration/e2e_1000node_throughput_test.go) | Output: `testdata/throughput_measured.json` reports modeled=315.1 ktx/s, pipeline=26 ms (within 19% of paper Table tab:e2e) |
+| 1000-replica scale on EC2 (m=10 × n=100) | abstract.tex:11; 6experiments.tex setup | [`TestE2E_1000Node_ClosedLoop`](src/evolvbft/integration/e2e_1000node_test.go) (line 23) | `go test -run TestE2E_1000Node_ClosedLoop` passes 100 epochs, partition+churn |
+| ≥100 ktx/s throughput, ≤26 ms pipeline | Figure 5 caption ≥200 ktx/s; §VI setup ≤26 ms; Table tab:e2e 264.4 ktx/s | [`TestE2E_1000Node_ThroughputMeasured`](src/evolvbft/integration/e2e_1000node_throughput_test.go) | Output: `testdata/throughput_measured.json` reports modeled=315.1 ktx/s, pipeline=26 ms (within 19% of paper Table tab:e2e) |
 | Pipeline ≤100 ms vehicular budget | §VI setup; Theorem theo:cp-overhead | Same test asserts `modeled_pipeline_ms ≤ 100` | sanity assertion in test |
-| Chain-internal reconfiguration via QC pipeline (DynaPipe Algorithm 2) | §III-B Algorithm 2 | [`Pipeline.OnReconfigDecision`](src/octopus/integration/pipeline.go) and `pkg/dynapipe/` |  |
-| Global Beacon Chain (GBC) records cross-instance metadata | §III-C | [`gbc.NewLogWithMembers`](src/octopus/consensus/gbc/) | Used in all 1000-node tests |
+| Chain-internal reconfiguration via QC pipeline (DynaPipe Algorithm 2) | §III-B Algorithm 2 | [`Pipeline.OnReconfigDecision`](src/evolvbft/integration/pipeline.go) and `pkg/dynapipe/` |  |
+| Global Beacon Chain (GBC) records cross-instance metadata | §III-C | [`gbc.NewLogWithMembers`](src/evolvbft/consensus/gbc/) | Used in all 1000-node tests |
 | Safety/liveness under partition + ≤f Byzantine + churn | Theorems 1-3 + Theorem cross-view + Theorem reconfig-safety | `TestE2E_1000Node_ClosedLoop` injects partition (epochs 30-40) + 30% Byzantine + reconfigInterval=10 | `globalOrderCount ≥ numEpochs/2` assertion |
-| Throughput stable under dynamic reconfiguration | Figure 6 caption: within 5% of static | [`TestE2E_1000Node_ThroughputUnderChurn`](src/octopus/integration/e2e_1000node_test.go) (line 216) | `orderCount ≥ numEpochs - 5` assertion |
-| HotStuff metrics infrastructure (latency p50/p95/p99, recovery) | §VI setup | [`GlobalConfirmedMetrics`](src/octopus/consensus/hotstuff/metrics.go) (line 9) |  |
+| Throughput stable under dynamic reconfiguration | Figure 6 caption: within 5% of static | [`TestE2E_1000Node_ThroughputUnderChurn`](src/evolvbft/integration/e2e_1000node_test.go) (line 216) | `orderCount ≥ numEpochs - 5` assertion |
+| HotStuff metrics infrastructure (latency p50/p95/p99, recovery) | §VI setup | [`GlobalConfirmedMetrics`](src/evolvbft/consensus/hotstuff/metrics.go) (line 9) |  |
 
 **Key entrypoints:**
-- Run consensus tests: `cd src && go test ./octopus/integration/ -run TestE2E_1000Node -v -timeout 600s`
-- Throughput JSON: `src/octopus/integration/testdata/throughput_measured.json`
+- Run consensus tests: `cd src && go test ./evolvbft/integration/ -run TestE2E_1000Node -v -timeout 600s`
+- Throughput JSON: `src/evolvbft/integration/testdata/throughput_measured.json`
 
 ---
 
@@ -56,11 +56,11 @@ evaluators and reviewers.
 
 | Paper Claim | Location in Paper | Implementation | Verification |
 |---|---|---|---|
-| V2X-Sim platform, n=2-7 vehicles, FaFNet+MeanFusion | §VI setup; appendix.tex V2X subsection | [`run_v2x_eval.py`](experiments/run_v2x_eval.py) + [`octopus_v2x_eval.py`](experiments/octopus_v2x_eval.py) | Configurable; default n=5, paper uses n=6 |
+| V2X-Sim platform, n=2-7 vehicles, FaFNet+MeanFusion | §VI setup; appendix.tex V2X subsection | [`run_v2x_eval.py`](experiments/run_v2x_eval.py) + [`evolvbft_v2x_eval.py`](experiments/evolvbft_v2x_eval.py) | Configurable; default n=5, paper uses n=6 |
 | PGD FDI attack, ε=0.5, 20 iter, step=0.1 | appendix.tex:1615 | `V2XConfig` in `run_v2x_eval.py:73` | Cached attack reuse to amortise PGD cost |
-| 7-dim V2X-specific trust classifier (cross-instance + mean discrepancy) | appendix.tex V2X | `OctopusController._compute_features` in `run_v2x_eval.py` | Independent from Python SFAC 5-dim (Eq.5) due to V2X-specific signals |
-| Persistent attack: Octopus restores mAP@0.5 to 82.4% (benign ceiling) | 6experiments.tex:227 | `run_v2x_eval.py` evaluation loop | Ground-truth mAP via simulated fusion |
-| Intermittent attack: Octopus 84.4% (surpasses ceiling via auth recovery) | 6experiments.tex:229 | Same script with intermittent schedule |  |
+| 7-dim V2X-specific trust classifier (cross-instance + mean discrepancy) | appendix.tex V2X | `EvolvbftController._compute_features` in `run_v2x_eval.py` | Independent from Python SFAC 5-dim (Eq.5) due to V2X-specific signals |
+| Persistent attack: Evolv-BFT restores mAP@0.5 to 82.4% (benign ceiling) | 6experiments.tex:227 | `run_v2x_eval.py` evaluation loop | Ground-truth mAP via simulated fusion |
+| Intermittent attack: Evolv-BFT 84.4% (surpasses ceiling via auth recovery) | 6experiments.tex:229 | Same script with intermittent schedule |  |
 | TPR=1.000, FPR=0.000 across all attack modes | 0abstract.tex (after fix); 6experiments.tex:227 | Same script reports per-frame detection metrics |  |
 | Latency 1.0 s/frame vs ROBOSAC 128.4 s, MATE/AdvCP 14.4 s | 6experiments.tex:227 | Wall-clock measurement in evaluation loop |  |
 
@@ -74,7 +74,7 @@ evaluators and reviewers.
 
 | Theorem | Paper Location | Numerical / Empirical Confirmation |
 |---|---|---|
-| Theorem theo:regret-bound — D(T) = O(√T) | 4theorems.tex | Table tab:e2e: Octopus β=0.48 fitted exponent |
+| Theorem theo:regret-bound — D(T) = O(√T) | 4theorems.tex | Table tab:e2e: Evolv-BFT β=0.48 fitted exponent |
 | Theorem theo:convergence — O(1/√K) policy-gradient | 4theorems.tex | `train_step` loss curves in `experiments/results/` |
 | Theorem theo:bounded-detection — κ_det = ⌈(W/ρ_min) ln(1/δ)⌉ | 4theorems.tex | Table tab:cp-performance Delay column (2-3 epochs vs paper bound) |
 | Theorem theo:static-impossibility — Ω(T) without adaptation | 4theorems.tex | Table tab:e2e: CUSUM β=0.98 (near-linear) |
@@ -107,10 +107,10 @@ By default the Go integration tests use a hand-tuned fallback
 run
 
 ```bash
-cd Experiment/Octopus
+cd Experiment/Evolv-BFT
 python experiments/export_trust_weights.py \
     --ckpt outputs/sfac/best.pt \
-    --out  src/octopus/integration/testdata/trust_weights.json
+    --out  src/evolvbft/integration/testdata/trust_weights.json
 ```
 
 Subsequent Go tests automatically load the learned weights via
@@ -135,7 +135,7 @@ schemas so checkpoints are interchangeable for the trust head.
 All paper claims have been cross-verified against code (§III, §IV, §VI audited).
 Strong alignment confirmed — no discrepancies requiring code or paper changes.
 
-## 7. Recent Alignment Commits (Octopus repo)
+## 7. Recent Alignment Commits (Evolv-BFT repo)
 
 | Commit | What | Closes |
 |---|---|---|

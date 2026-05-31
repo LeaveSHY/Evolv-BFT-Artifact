@@ -1,4 +1,4 @@
-# Octopus Architecture: Paper → Code Mapping
+# Evolv-BFT Architecture: Paper → Code Mapping
 
 This document maps each component described in the NDSS 2027 submission to the
 corresponding Go/Python implementation, with honest claim boundaries.
@@ -9,13 +9,13 @@ corresponding Go/Python implementation, with honest claim boundaries.
 
 | Paper Component                   | Paper Section | Code Location                                      | Status                               |
 | --------------------------------- | ------------- | -------------------------------------------------- | ------------------------------------ |
-| Dynamic Pipelined Consensus       | §III-B        | `octopus/consensus/hotstuff/`                      | ✅ Production                         |
-| Global Beacon Chain (GBC)         | §III-C        | `octopus/consensus/gbc/`                           | ⚠️ Local log with signed attestations |
-| Safe Factored Actor-Critic (SFAC) | §III-D        | `marl/` (Python) + `octopus/adaptive/` (Go bridge) | ✅ Split-platform                     |
+| Dynamic Pipelined Consensus       | §III-B        | `evolvbft/consensus/hotstuff/`                      | ✅ Production                         |
+| Global Beacon Chain (GBC)         | §III-C        | `evolvbft/consensus/gbc/`                           | ⚠️ Local log with signed attestations |
+| Safe Factored Actor-Critic (SFAC) | §III-D        | `marl/` (Python) + `evolvbft/adaptive/` (Go bridge) | ✅ Split-platform                     |
 
 ---
 
-## Consensus Layer (`octopus/consensus/hotstuff/`)
+## Consensus Layer (`evolvbft/consensus/hotstuff/`)
 
 **Paper claim**: m concurrent pipelined BFT instances with certified chain-internal reconfiguration.
 
@@ -32,7 +32,7 @@ corresponding Go/Python implementation, with honest claim boundaries.
 
 ---
 
-## Global Beacon Chain (`octopus/consensus/gbc/`)
+## Global Beacon Chain (`evolvbft/consensus/gbc/`)
 
 **Paper claim**: BFT log among m primaries recording QCs, membership changes, checkpoints, policy updates. Properties G1-G4.
 
@@ -48,7 +48,7 @@ corresponding Go/Python implementation, with honest claim boundaries.
 
 ## Adaptive Trust Management
 
-### Go Bridge (`octopus/adaptive/`)
+### Go Bridge (`evolvbft/adaptive/`)
 
 **Paper claim**: The consensus layer observes metrics and the SFAC produces trust-driven reconfiguration actions.
 
@@ -70,7 +70,7 @@ corresponding Go/Python implementation, with honest claim boundaries.
 | `trainer.py`      | SafeFACMACTrainer: training loop with prioritized experience replay       | §III-D P2 (centralized critic)                 |
 | `organization.py` | MOISEOrganizationModel: four roles (Sentinel, Commander, Tuner, Guardian) | §III-D P5 (role decomposition)                 |
 | `app.py`          | FastAPI service: `/infer`, `/train/online`, `/trace/ingest` endpoints     | Narrow interface (d=5 features)                |
-| `service.py`      | PolicyService: orchestrates training, inference, checkpointing            | §III-E Algorithm 7 (Octopus loop)              |
+| `service.py`      | PolicyService: orchestrates training, inference, checkpointing            | §III-E Algorithm 7 (Evolv-BFT loop)              |
 
 **Integration**: Go sends observations to Python via HTTP POST to `/infer`, receives actions. Python trains from JSONL traces via `/train/offline` or online via `/trace/ingest` + `/train/online`.
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Octopus BFT — Automated Benchmark Runner
+# Evolv-BFT — Automated Benchmark Runner
 # ============================================================================
-# Sends synthetic transactions to Octopus nodes and measures throughput
+# Sends synthetic transactions to Evolv-BFT nodes and measures throughput
 # and latency. Works with both Docker Compose (local) and Kubernetes.
 #
 # Usage:
@@ -91,7 +91,7 @@ check_deps() {
 generate_tx_payload() {
     # Generate a random binary payload file of TX_SIZE_BYTES
     local size=$1
-    local payload_file="${TMPDIR:-/tmp}/octopus_tx_payload.bin"
+    local payload_file="${TMPDIR:-/tmp}/evolvbft_tx_payload.bin"
     head -c "$size" /dev/urandom > "$payload_file" 2>/dev/null || \
         python3 -c "import os,sys; sys.stdout.buffer.write(os.urandom($size))" > "$payload_file"
     echo "$payload_file"
@@ -116,7 +116,7 @@ build_endpoints() {
 
         for i in $(seq 0 $((forward_count - 1))); do
             local local_port=$((30000 + i))
-            kubectl port-forward "pod/octopus-${i}" "${local_port}:9000" \
+            kubectl port-forward "pod/evolvbft-${i}" "${local_port}:9000" \
                 --namespace=default &>/dev/null &
             endpoints+=("http://localhost:${local_port}")
         done
@@ -217,7 +217,7 @@ run_benchmark() {
     local num_endpoints=${#endpoints[@]}
 
     log "============================================================"
-    log "  Octopus BFT Benchmark"
+    log "  Evolv-BFT Benchmark"
     log "============================================================"
     log "  Nodes:          ${NODES}"
     log "  Endpoints:      ${num_endpoints}"

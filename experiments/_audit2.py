@@ -1,5 +1,5 @@
 import json, os
-os.chdir(r'd:\Alex\Papers\NDSS 2027_SUBMISSION\figures\Octopus')
+os.chdir(r'd:\Alex\Papers\NDSS 2027_SUBMISSION\figures\Evolv-BFT')
 d=json.load(open('appendix_experiment_data.json'))
 
 print('=== exp_d_detection_latency ===')

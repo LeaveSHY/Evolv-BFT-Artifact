@@ -185,7 +185,7 @@ class SafeFACMACTrainer:
     - IGM guarantee: ε_IGM = 0 by construction (absolute-value hypernetwork)
 
     Paper alignment: this class implements Algorithm 1 (SafeMARL) from the
-    Octopus paper (§III). The MonotonicMixer ensures structural IGM as
+    Evolv-BFT paper (§III). The MonotonicMixer ensures structural IGM as
     required by Proposition IGM-structural.
     """
 
@@ -784,7 +784,7 @@ def _tolist(value: Any):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Paper alignment alias.
-# The Octopus paper refers to Algorithm 1 (CTDE-factored-Q with pre-argmax
+# The Evolv-BFT paper refers to Algorithm 1 (CTDE-factored-Q with pre-argmax
 # safety filter) as ``SafeMARL``. The implementation lives in
 # ``SafeFACMACTrainer`` above; this alias preserves the paper-side name so
 # that ``from marl.trainer import SafeMARL`` works alongside existing imports.

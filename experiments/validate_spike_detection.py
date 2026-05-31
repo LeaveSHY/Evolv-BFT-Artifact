@@ -67,7 +67,7 @@ def simulate_detection(seed, use_spike=True, use_ewma_init=True):
     cusum_neg = np.zeros(M_INSTANCES)
     
     # Metrics
-    damage_octopus = 0
+    damage_evolvbft = 0
     damage_cusum = 0
     detection_latency_sum_oct = 0
     detection_latency_sum_cus = 0
@@ -113,7 +113,7 @@ def simulate_detection(seed, use_spike=True, use_ewma_init=True):
             per_inst_equiv[j] = np.mean(equiv_signals[mask])
             per_inst_byz[j] = np.sum(active_byz[mask])
         
-        # === Octopus Detection (EWMA + equivocation + spike) ===
+        # === Evolv-BFT Detection (EWMA + equivocation + spike) ===
         # Update EWMA (asymmetric)
         alpha = np.where(per_inst_signal >= ewma, EWMA_ALPHA, 
                         min(EWMA_ALPHA * 2.5, 0.35))
@@ -145,11 +145,11 @@ def simulate_detection(seed, use_spike=True, use_ewma_init=True):
         # === Damage calculation ===
         for j in range(M_INSTANCES):
             if per_inst_byz[j] > 0 and not detected_oct[j]:
-                damage_octopus += per_inst_byz[j]
+                damage_evolvbft += per_inst_byz[j]
             if per_inst_byz[j] > 0 and not detected_cus[j]:
                 damage_cusum += per_inst_byz[j]
         
-        # === Detection latency tracking (Octopus) ===
+        # === Detection latency tracking (Evolv-BFT) ===
         for j in range(M_INSTANCES):
             if per_inst_byz[j] > 0 and j not in attack_start_oct:
                 attack_start_oct[j] = t
@@ -189,8 +189,8 @@ def simulate_detection(seed, use_spike=True, use_ewma_init=True):
     return {
         "seed": seed,
         "byz_per_inst": byz_per_inst.tolist(),
-        "octopus_D_T": int(damage_octopus),
-        "octopus_latency": round(lat_oct, 2),
+        "evolvbft_D_T": int(damage_evolvbft),
+        "evolvbft_latency": round(lat_oct, 2),
         "cusum_D_T": int(damage_cusum),
         "cusum_latency": round(lat_cus, 2),
     }
@@ -210,8 +210,8 @@ def main():
     for s in SEEDS:
         r = simulate_detection(s, use_spike=True, use_ewma_init=True)
         results_opt.append(r)
-        print(f"  Seed {s:>3}: Octopus D(T)={r['octopus_D_T']:>5}, "
-              f"latency={r['octopus_latency']:.2f} | "
+        print(f"  Seed {s:>3}: Evolv-BFT D(T)={r['evolvbft_D_T']:>5}, "
+              f"latency={r['evolvbft_latency']:.2f} | "
               f"CUSUM D(T)={r['cusum_D_T']:>5}, latency={r['cusum_latency']:.2f} | "
               f"byz_dist={r['byz_per_inst']}")
     
@@ -223,22 +223,22 @@ def main():
     for s in SEEDS:
         r = simulate_detection(s, use_spike=False, use_ewma_init=False)
         results_orig.append(r)
-        print(f"  Seed {s:>3}: Octopus D(T)={r['octopus_D_T']:>5}, "
-              f"latency={r['octopus_latency']:.2f} | "
+        print(f"  Seed {s:>3}: Evolv-BFT D(T)={r['evolvbft_D_T']:>5}, "
+              f"latency={r['evolvbft_latency']:.2f} | "
               f"CUSUM D(T)={r['cusum_D_T']:>5}, latency={r['cusum_latency']:.2f}")
     
     print()
     print("--- SUMMARY ---")
-    d_opt = [r["octopus_D_T"] for r in results_opt]
-    d_orig = [r["octopus_D_T"] for r in results_orig]
+    d_opt = [r["evolvbft_D_T"] for r in results_opt]
+    d_orig = [r["evolvbft_D_T"] for r in results_orig]
     d_cusum = [r["cusum_D_T"] for r in results_opt]
-    lat_opt = [r["octopus_latency"] for r in results_opt]
-    lat_orig = [r["octopus_latency"] for r in results_orig]
+    lat_opt = [r["evolvbft_latency"] for r in results_opt]
+    lat_orig = [r["evolvbft_latency"] for r in results_orig]
     lat_cusum = [r["cusum_latency"] for r in results_opt]
     
-    print(f"  Optimized Octopus:  D(T) mean={np.mean(d_opt):.1f}±{np.std(d_opt):.1f}, "
+    print(f"  Optimized Evolv-BFT:  D(T) mean={np.mean(d_opt):.1f}±{np.std(d_opt):.1f}, "
           f"latency={np.mean(lat_opt):.2f}±{np.std(lat_opt):.2f}")
-    print(f"  Original Octopus:   D(T) mean={np.mean(d_orig):.1f}±{np.std(d_orig):.1f}, "
+    print(f"  Original Evolv-BFT:   D(T) mean={np.mean(d_orig):.1f}±{np.std(d_orig):.1f}, "
           f"latency={np.mean(lat_orig):.2f}±{np.std(lat_orig):.2f}")
     print(f"  CUSUM:              D(T) mean={np.mean(d_cusum):.1f}±{np.std(d_cusum):.1f}, "
           f"latency={np.mean(lat_cusum):.2f}±{np.std(lat_cusum):.2f}")

@@ -1,7 +1,7 @@
-// Copyright 2024 Octopus Project
+// Copyright 2024 Evolv-BFT Project
 // Licensed under Apache License 2.0
 
-// collect-metrics polls /metrics from multiple Octopus nodes and produces
+// collect-metrics polls /metrics from multiple Evolv-BFT nodes and produces
 // aggregated benchmark results suitable for paper figures.
 //
 // Usage:
@@ -27,7 +27,7 @@ import (
 	"time"
 )
 
-// MetricsSnapshot mirrors the JSON from Octopus /metrics endpoint
+// MetricsSnapshot mirrors the JSON from Evolv-BFT /metrics endpoint
 type MetricsSnapshot struct {
 	GlobalConfirmedTotal int64   `json:"global_confirmed_total"`
 	GlobalConfirmedNil   int64   `json:"global_confirmed_nil"`

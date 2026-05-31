@@ -1,5 +1,5 @@
 """
-Unified plotting style for Octopus NDSS 2027 submission.
+Unified plotting style for Evolv-BFT NDSS 2027 submission.
 
 Usage:
     from plot_style import apply_style, COLORS, save_fig, FIG_SINGLE, FIG_DOUBLE
@@ -36,7 +36,7 @@ FIG_SQUARE = (3.5, 3.2)   # Square (radar, heatmap)
 
 # ─── Color palette (Nature-style, colorblind-safe, consistent across all figures) ──
 COLORS = {
-    "octopus":  "#E64B35",  # Nature Red - our method (stands out)
+    "evolvbft":  "#E64B35",  # Nature Red - our method (stands out)
     "cusum":    "#4DBBD5",  # Cyan - baseline
     "exp3":     "#00A087",  # Teal - baseline
     "ucb":      "#3C5488",  # Navy - baseline
@@ -46,11 +46,11 @@ COLORS = {
 }
 
 # Ordered list for consistent legend ordering
-COLOR_ORDER = ["octopus", "cusum", "exp3", "ucb", "random"]
+COLOR_ORDER = ["evolvbft", "cusum", "exp3", "ucb", "random"]
 
 # ─── Line styles for B&W friendliness ─────────────────────────────────────────
 LINESTYLES = {
-    "octopus": "-",
+    "evolvbft": "-",
     "cusum":   "--",
     "exp3":    "-.",
     "ucb":     ":",
@@ -58,7 +58,7 @@ LINESTYLES = {
 }
 
 MARKERS = {
-    "octopus": "o",
+    "evolvbft": "o",
     "cusum":   "s",
     "exp3":    "^",
     "ucb":     "D",

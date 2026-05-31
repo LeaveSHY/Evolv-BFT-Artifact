@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"octopus-bft/octopus/benchmark"
+	"evolvbft/evolvbft/benchmark"
 )
 
 func main() {

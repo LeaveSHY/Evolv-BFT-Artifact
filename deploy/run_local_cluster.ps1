@@ -1,7 +1,7 @@
 # ============================================================================
-# Octopus BFT — Local Multi-Node Cluster Runner (Windows PowerShell)
+# Evolv-BFT — Local Multi-Node Cluster Runner (Windows PowerShell)
 # ============================================================================
-# Generates a genesis manifest and starts N local Octopus nodes.
+# Generates a genesis manifest and starts N local Evolv-BFT nodes.
 #
 # Usage:
 #   .\run_local_cluster.ps1 [-Nodes 4] [-Instances 2] [-BasePort 8080]
@@ -49,16 +49,16 @@ Register-EngineEvent PowerShell.Exiting -Action { Cleanup } | Out-Null
 
 try {
     # ── Build ───────────────────────────────────────────────────────────────
-    Write-Host "=== Building Octopus ==="
+    Write-Host "=== Building Evolv-BFT ==="
     New-Item -ItemType Directory -Force -Path $BuildDir | Out-Null
     Push-Location $SrcDir
-    go build -o "$BuildDir\octopus.exe" ./cmd/octopus
-    go build -o "$BuildDir\octopus-genesis.exe" ./cmd/octopus-genesis
+    go build -o "$BuildDir\evolvbft.exe" ./cmd/evolvbft
+    go build -o "$BuildDir\evolvbft-genesis.exe" ./cmd/evolvbft-genesis
     Pop-Location
 
     # ── Generate genesis manifest ───────────────────────────────────────────
     Write-Host "=== Generating genesis manifest (nodes=$Nodes, seed=$Seed) ==="
-    & "$BuildDir\octopus-genesis.exe" `
+    & "$BuildDir\evolvbft-genesis.exe" `
         -nodes=$Nodes `
         -seed="$Seed" `
         -base-host="127.0.0.1" `
@@ -75,7 +75,7 @@ try {
         $HttpPort = $HttpBase + $i
         $LogFile = Join-Path $ScriptDir "tmp-node-$i.log"
 
-        $proc = Start-Process -FilePath "$BuildDir\octopus.exe" `
+        $proc = Start-Process -FilePath "$BuildDir\evolvbft.exe" `
             -ArgumentList "-id=$i","-port=$P2PPort","-http=$HttpPort",`
                 "-manifest=$GenesisFile","-total-nodes=$Nodes",`
                 "-initial-validators=$Nodes","-instances=$Instances",`

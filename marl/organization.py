@@ -211,7 +211,7 @@ class MOISEOrganizationModel:
 
     def snapshot(self) -> dict:
         return {
-            "name": "octopus-moise-marl",
+            "name": "evolvbft-moise-marl",
             "schema_version": SCHEMA_VERSION,
             "action_fields": list(ACTION_FIELDS),
             "decision_fields": list(OrganizationDecision.__dataclass_fields__.keys()),

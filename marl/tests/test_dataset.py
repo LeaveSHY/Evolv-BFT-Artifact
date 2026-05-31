@@ -39,7 +39,7 @@ class DatasetTests(unittest.TestCase):
             {
                 "timestamp": "2026-04-11T00:00:00Z",
                 "policy_name": "safe-baseline",
-                "schema_version": "octopus-adaptive-v1",
+                "schema_version": "evolvbft-adaptive-v1",
                 "observation": {
                     "validator_count": 4,
                     "global_confirmed_total": 0,
@@ -147,7 +147,7 @@ class DatasetTests(unittest.TestCase):
                 "reward": 1.5,
                 "team_reward": 1.25,
                 "role_rewards": {"lane_tuner": 0.8, "recovery_tuner": -0.2},
-                "schema_version": "octopus-adaptive-v1",
+                "schema_version": "evolvbft-adaptive-v1",
             }
             path.write_text(json.dumps(sample) + "\n", encoding="utf-8")
 
@@ -158,7 +158,7 @@ class DatasetTests(unittest.TestCase):
             self.assertTrue(samples[0].guardrail_delta)
             self.assertEqual(samples[0].candidate.action.pacemaker_timeout_ms, 100)
             self.assertEqual(samples[0].governed.action.submit_join, False)
-            self.assertEqual(samples[0].schema_version, "octopus-adaptive-v1")
+            self.assertEqual(samples[0].schema_version, "evolvbft-adaptive-v1")
 
             batch = build_training_batch(samples)
             self.assertEqual(batch.features.shape[0], 1)
@@ -435,7 +435,7 @@ class DatasetTests(unittest.TestCase):
                 "observation": {"validator_count": 4},
                 "applied": {"action": {"pacemaker_timeout_ms": 1000}, "present": True},
                 "reward": 1.0,
-                "schema_version": "octopus-adaptive-v0",
+                "schema_version": "evolvbft-adaptive-v0",
             }
             path.write_text(json.dumps(sample) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "unsupported trace schema_version"):
@@ -450,7 +450,7 @@ class DatasetTests(unittest.TestCase):
                 "observation": {"validator_count": 4, "unexpected": 1},
                 "applied": {"action": {"pacemaker_timeout_ms": 1000}, "present": True},
                 "reward": 1.0,
-                "schema_version": "octopus-adaptive-v1",
+                "schema_version": "evolvbft-adaptive-v1",
             }
             path.write_text(json.dumps(sample) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "unknown field at observation\.unexpected"):
@@ -466,7 +466,7 @@ class DatasetTests(unittest.TestCase):
                 "candidate": {"action": {"pacemaker_timeout_ms": 900}, "present": True, "unexpected": 1},
                 "applied": {"action": {"pacemaker_timeout_ms": 1000}, "present": True},
                 "reward": 1.0,
-                "schema_version": "octopus-adaptive-v1",
+                "schema_version": "evolvbft-adaptive-v1",
             }
             path.write_text(json.dumps(sample) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "unknown field at candidate\.unexpected"):
@@ -482,7 +482,7 @@ class DatasetTests(unittest.TestCase):
                 "candidate": {"action": {"pacemaker_timeout_ms": 900, "unexpected": 1}, "present": True},
                 "applied": {"action": {"pacemaker_timeout_ms": 1000}, "present": True},
                 "reward": 1.0,
-                "schema_version": "octopus-adaptive-v1",
+                "schema_version": "evolvbft-adaptive-v1",
             }
             path.write_text(json.dumps(sample) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "unknown field at candidate\.action\.unexpected"):
@@ -509,7 +509,7 @@ class DatasetTests(unittest.TestCase):
                 },
                 "applied": {"action": {"pacemaker_timeout_ms": 1000}, "present": True},
                 "reward": 1.0,
-                "schema_version": "octopus-adaptive-v1",
+                "schema_version": "evolvbft-adaptive-v1",
             }
             path.write_text(json.dumps(sample) + "\n", encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "unknown field at candidate\.action\.agent_actions\[0\]\.unexpected"):

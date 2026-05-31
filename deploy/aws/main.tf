@@ -1,9 +1,9 @@
 # ============================================================================
-# Octopus BFT — EC2 1000-Node Consensus Deployment
+# Evolv-BFT — EC2 1000-Node Consensus Deployment
 # ============================================================================
 # Production infrastructure for the 1000-replica WAN benchmark reported in §VI.
 # Provisions 100 EC2 c5.xlarge instances (4 vCPU, 8 GiB RAM) across
-# 2 availability zones. Each VM runs 10 Octopus replicas = 1000 total.
+# 2 availability zones. Each VM runs 10 Evolv-BFT replicas = 1000 total.
 # NetEm applies 40ms one-way delay (80ms RTT) to match WAN conditions.
 #
 # Usage:
@@ -44,13 +44,13 @@ variable "key_name" {
 }
 
 variable "num_vms" {
-  description = "Number of EC2 instances (each runs replicas_per_vm Octopus nodes)"
+  description = "Number of EC2 instances (each runs replicas_per_vm Evolv-BFT nodes)"
   type        = number
   default     = 100
 }
 
 variable "replicas_per_vm" {
-  description = "Octopus replicas per VM"
+  description = "Evolv-BFT replicas per VM"
   type        = number
   default     = 10
 }
@@ -98,7 +98,7 @@ variable "allowed_ssh_cidr" {
 }
 
 variable "ecr_repo_uri" {
-  description = "ECR repository URI for the Octopus Docker image (set by orchestrator script)"
+  description = "ECR repository URI for the Evolv-BFT Docker image (set by orchestrator script)"
   type        = string
   default     = ""
 }
@@ -135,38 +135,38 @@ locals {
 
 # ── Networking ──────────────────────────────────────────────────────────────
 
-resource "aws_vpc" "octopus" {
+resource "aws_vpc" "evolvbft" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = { Name = "octopus-benchmark-vpc" }
+  tags = { Name = "evolvbft-benchmark-vpc" }
 }
 
 resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.octopus.id
-  tags   = { Name = "octopus-igw" }
+  vpc_id = aws_vpc.evolvbft.id
+  tags   = { Name = "evolvbft-igw" }
 }
 
 resource "aws_subnet" "public" {
   count                   = 2
-  vpc_id                  = aws_vpc.octopus.id
+  vpc_id                  = aws_vpc.evolvbft.id
   cidr_block              = "10.0.${count.index}.0/24"
   availability_zone       = local.azs[count.index]
   map_public_ip_on_launch = true
 
-  tags = { Name = "octopus-subnet-${count.index}" }
+  tags = { Name = "evolvbft-subnet-${count.index}" }
 }
 
 resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.octopus.id
+  vpc_id = aws_vpc.evolvbft.id
 
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
 
-  tags = { Name = "octopus-rt" }
+  tags = { Name = "evolvbft-rt" }
 }
 
 resource "aws_route_table_association" "public" {
@@ -177,10 +177,10 @@ resource "aws_route_table_association" "public" {
 
 # ── Security Group ──────────────────────────────────────────────────────────
 
-resource "aws_security_group" "octopus" {
-  name        = "octopus-benchmark-sg"
+resource "aws_security_group" "evolvbft" {
+  name        = "evolvbft-benchmark-sg"
   description = "Allow SSH + intra-cluster traffic"
-  vpc_id      = aws_vpc.octopus.id
+  vpc_id      = aws_vpc.evolvbft.id
 
   # SSH from allowed CIDR
   ingress {
@@ -212,18 +212,18 @@ resource "aws_security_group" "octopus" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "octopus-sg" }
+  tags = { Name = "evolvbft-sg" }
 }
 
 # ── EC2 Instances ───────────────────────────────────────────────────────────
 
-resource "aws_instance" "octopus" {
+resource "aws_instance" "evolvbft" {
   count                  = var.num_vms
   ami                    = local.ami
   instance_type          = var.instance_type
   key_name               = var.key_name
   subnet_id              = aws_subnet.public[count.index % 2].id
-  vpc_security_group_ids = [aws_security_group.octopus.id]
+  vpc_security_group_ids = [aws_security_group.evolvbft.id]
 
   root_block_device {
     volume_size = 20
@@ -243,8 +243,8 @@ resource "aws_instance" "octopus" {
   })
 
   tags = {
-    Name    = "octopus-node-${count.index}"
-    Project = "octopus-benchmark"
+    Name    = "evolvbft-node-${count.index}"
+    Project = "evolvbft-benchmark"
     Role    = "consensus"
   }
 }
@@ -253,12 +253,12 @@ resource "aws_instance" "octopus" {
 
 output "instance_ips" {
   description = "Public IPs of all benchmark VMs"
-  value       = aws_instance.octopus[*].public_ip
+  value       = aws_instance.evolvbft[*].public_ip
 }
 
 output "private_ips" {
   description = "Private IPs (used for intra-cluster P2P)"
-  value       = aws_instance.octopus[*].private_ip
+  value       = aws_instance.evolvbft[*].private_ip
 }
 
 output "total_replicas" {
@@ -266,5 +266,5 @@ output "total_replicas" {
 }
 
 output "ssh_command" {
-  value = "ssh -i ~/.ssh/${var.key_name}.pem ubuntu@${try(aws_instance.octopus[0].public_ip, "pending")}"
+  value = "ssh -i ~/.ssh/${var.key_name}.pem ubuntu@${try(aws_instance.evolvbft[0].public_ip, "pending")}"
 }

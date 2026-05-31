@@ -1,7 +1,7 @@
 # Baseline Consensus Protocol Benchmarks
 
 This directory contains the deployment and benchmarking infrastructure for
-comparing Octopus against state-of-the-art BFT consensus protocols.
+comparing Evolv-BFT against state-of-the-art BFT consensus protocols.
 
 ## Baselines
 

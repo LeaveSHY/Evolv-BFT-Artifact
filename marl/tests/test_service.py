@@ -178,7 +178,7 @@ class ServiceTests(unittest.TestCase):
 
     def test_service_ingest_rejects_unsupported_trace_schema_version(self):
         service = PolicyService()
-        with self.assertRaisesRegex(ValueError, "unsupported trace schema_version: octopus-adaptive-v0 != octopus-adaptive-v1"):
+        with self.assertRaisesRegex(ValueError, "unsupported trace schema_version: evolvbft-adaptive-v0 != evolvbft-adaptive-v1"):
             service.ingest(
                 TrajectorySample.from_dict(
                     {
@@ -186,7 +186,7 @@ class ServiceTests(unittest.TestCase):
                         "observation": {"validator_count": 8},
                         "applied": {"action": {"pacemaker_timeout_ms": 1300}, "present": True},
                         "reward": 0.5,
-                        "schema_version": "octopus-adaptive-v0",
+                        "schema_version": "evolvbft-adaptive-v0",
                     }
                 )
             )
@@ -221,14 +221,14 @@ class ServiceTests(unittest.TestCase):
                 "observation": {"validator_count": 8},
                 "applied": {"action": {"pacemaker_timeout_ms": 1300}, "present": True},
                 "reward": 0.5,
-                "schema_version": "octopus-adaptive-v0",
+                "schema_version": "evolvbft-adaptive-v0",
             },
         )
 
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
             response.json()["detail"],
-            "unsupported trace schema_version: octopus-adaptive-v0 != octopus-adaptive-v1",
+            "unsupported trace schema_version: evolvbft-adaptive-v0 != evolvbft-adaptive-v1",
         )
 
     def test_runtime_trace_offline_training_preserves_runtime_metadata(self):
@@ -287,7 +287,7 @@ class ServiceTests(unittest.TestCase):
                     {
                         "timestamp": "2026-04-11T00:00:00Z",
                         "policy_name": "safe-baseline",
-                        "schema_version": "octopus-adaptive-v1",
+                        "schema_version": "evolvbft-adaptive-v1",
                         "observation": {
                             "validator_count": 4,
                             "global_confirmed_total": 0,
@@ -306,7 +306,7 @@ class ServiceTests(unittest.TestCase):
                 json.dumps(
                     {
                         "producer": "deploy/run_local_cluster.sh",
-                        "schema_version": "octopus-adaptive-v1",
+                        "schema_version": "evolvbft-adaptive-v1",
                         "truth_level": "authoritative-runtime-trace",
                         "claim_boundary": "minimal runtime-backed trace corpus only",
                         "trace_path": str(trace_path),
@@ -401,7 +401,7 @@ class ServiceTests(unittest.TestCase):
                         },
                         "governance_delta": True,
                         "reward": -0.5,
-                        "schema_version": "octopus-adaptive-v1",
+                        "schema_version": "evolvbft-adaptive-v1",
                     }
                 )
                 + "\n",
@@ -1694,11 +1694,11 @@ class ServiceTests(unittest.TestCase):
             relative_path = path.relative_to(workspace_root)
             source.save_checkpoint(relative_path)
             payload = json.loads(path.read_text(encoding="utf-8"))
-            payload["metadata"]["checkpoint_provenance"]["last_training"]["schema_version"] = "octopus-adaptive-v0"
+            payload["metadata"]["checkpoint_provenance"]["last_training"]["schema_version"] = "evolvbft-adaptive-v0"
             path.write_text(json.dumps(payload), encoding="utf-8")
 
             reloaded = PolicyService()
-            with self.assertRaisesRegex(ValueError, "unsupported checkpoint schema_version: octopus-adaptive-v0"):
+            with self.assertRaisesRegex(ValueError, "unsupported checkpoint schema_version: evolvbft-adaptive-v0"):
                 reloaded.load_checkpoint(relative_path)
 
     def test_checkpoint_load_without_provenance_rejects_untrusted_claim_metadata(self):
@@ -1796,11 +1796,11 @@ class ServiceTests(unittest.TestCase):
             relative_path = path.relative_to(workspace_root)
             source.save_checkpoint(relative_path)
             payload = json.loads(path.read_text(encoding="utf-8"))
-            payload["metadata"]["checkpoint_provenance"]["last_training"]["schema_version"] = "octopus-adaptive-v2"
+            payload["metadata"]["checkpoint_provenance"]["last_training"]["schema_version"] = "evolvbft-adaptive-v2"
             path.write_text(json.dumps(payload), encoding="utf-8")
 
             reloaded = PolicyService()
-            with self.assertRaisesRegex(ValueError, "unsupported checkpoint schema_version: octopus-adaptive-v2"):
+            with self.assertRaisesRegex(ValueError, "unsupported checkpoint schema_version: evolvbft-adaptive-v2"):
                 reloaded.load_checkpoint(relative_path)
 
     def test_checkpoint_load_defaults_missing_training_schema_version_to_current(self):
@@ -2888,7 +2888,7 @@ class ServiceTests(unittest.TestCase):
             "/trace/ingest",
             json={
                 "policy_name": "safe-facmac",
-                "schema_version": "octopus-adaptive-v2",
+                "schema_version": "evolvbft-adaptive-v2",
                 "observation": {"validator_count": 8},
                 "candidate": {"action": {"pacemaker_timeout_ms": 900}},
                 "reward": 1.0,

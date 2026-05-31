@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+package adaptive;
+
+option go_package = "evolvbft/evolvbft/adaptive/proto";
+
+// SFACService bridges Go consensus engine to Python SFAC trust manager.
+service SFACService {
+    // Decide sends observations and returns trust management actions.
+    rpc Decide(SFACRequest) returns (SFACResponse);
+    // Feedback sends reward/trajectory for online training.
+    rpc Feedback(TrajectorySample) returns (Ack);
+    // Reset resets episode state for new epoch.
+    rpc Reset(ResetRequest) returns (Ack);
+    // Health checks server readiness.
+    rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+message SFACRequest {
+    uint64 epoch = 1;
+    int32  num_instances = 2;
+    repeated SFACInstanceRequest instances = 3;
+    repeated double global_state = 4;
+}
+
+message SFACInstanceRequest {
+    uint64 instance_id = 1;
+    int32  validator_count = 2;
+    int32  fault_count = 3;
+    double throughput = 4;
+    double latency = 5;
+    int32  view_changes = 6;
+    repeated SFACTrustFeature trust_features = 7;
+}
+
+message SFACTrustFeature {
+    uint64 agent_id = 1;
+    double timeout_rate = 2;
+    double equivocation_rate = 3;
+    double view_change_rate = 4;
+    double mean_latency = 5;
+    double std_latency = 6;
+}
+
+message SFACResponse {
+    repeated SFACAgentAction actions = 1;
+    double value = 2;
+}
+
+message SFACAgentAction {
+    uint64 instance_id = 1;
+    repeated int32 reconfig = 2; // -1=evict, 0=retain, +1=join
+    bool   rotate = 3;
+    repeated double params = 4;
+}
+
+message TrajectorySample {
+    uint64 epoch = 1;
+    repeated double observation = 2;
+    repeated double action = 3;
+    double reward = 4;
+    repeated double next_observation = 5;
+    bool done = 6;
+}
+
+message ResetRequest {
+    uint64 epoch = 1;
+}
+
+message Ack {
+    bool   success = 1;
+    string error = 2;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+    bool   ready = 1;
+    string model_version = 2;
+    int64  decisions_served = 3;
+}

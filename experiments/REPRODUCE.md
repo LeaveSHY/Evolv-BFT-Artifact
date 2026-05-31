@@ -48,7 +48,7 @@ python gen_consensus_figures.py --output-dir ../results/figures/
 python regen_all_figures.py
 
 # Verify font compliance (no Type 3 fonts)
-for pdf in ../../NDSS\ 2027_SUBMISSION/figures/Octopus/*.pdf; do
+for pdf in ../../NDSS\ 2027_SUBMISSION/figures/Evolv-BFT/*.pdf; do
   pdffonts "$pdf" 2>/dev/null | grep -q "Type 3" && echo "FAIL $(basename $pdf)" || echo "OK $(basename $pdf)"
 done
 ```
@@ -92,7 +92,7 @@ cd experiments/
 # ~2 hours on 8-core CPU (5 seeds × 3000 episodes)
 python run_e2e_experiments.py --output-dir results/e2e_final --ablation --multi-T
 # → results/e2e_final/{e2e_summary.json, ablation_summary.json, figures/}
-# Expected: Octopus D(T) ≈ 36, UCB ≈ 264, EXP3 ≈ 459, CUSUM ≈ 770
+# Expected: Evolv-BFT D(T) ≈ 36, UCB ≈ 264, EXP3 ≈ 459, CUSUM ≈ 770
 
 # Step 2: Theorem 4 verification (Regret Bound: D(T) = O(√T))
 # ~1 hour (5 seeds, log-log regression + CI)
@@ -122,7 +122,7 @@ All experiments use seeds `[7, 13, 42, 97, 137]`, n=100, m=4, f=30, T=500 epochs
 
 | Claim | Script | Metric | Expected |
 |-------|--------|--------|----------|
-| Table IV (E2E damage) | `run_e2e_experiments.py` | D(T=500) | Octopus ≈ 36 |
+| Table IV (E2E damage) | `run_e2e_experiments.py` | D(T=500) | Evolv-BFT ≈ 36 |
 | Theorem 4 (regret) | `verify_regret_bound.py` | log-log slope | α ≤ 0.55 |
 | Figs 3-5 (throughput) | `gen_consensus_figures.py` | ktx/s at n=1000 | ≥250 |
 | Fig 6 (reconfiguration) | `gen_consensus_figures.py` | zero-stall | 0 view-changes |
@@ -140,7 +140,7 @@ cd baselines/
 ./deploy_ec2.sh --all --scale 1000
 ```
 
-Deploys 100 c5.xlarge instances across 5 AWS regions (us-east-1, us-west-2, eu-west-1, ap-northeast-1, ap-southeast-1). Runs Octopus, Bullshark, and Ladon with identical configurations (512 KB batch, 64B payload, Ed25519).
+Deploys 100 c5.xlarge instances across 5 AWS regions (us-east-1, us-west-2, eu-west-1, ap-northeast-1, ap-southeast-1). Runs Evolv-BFT, Bullshark, and Ladon with identical configurations (512 KB batch, 64B payload, Ed25519).
 
 ---
 
@@ -162,7 +162,7 @@ python run_v2x_eval.py --n-vehicles 6 --output-dir results/v2x/
 1. Download V2X-Sim dataset from https://ai4ce.github.io/V2X-Sim/
 2. Clone the Collaboration-Benchmark repo (see README.md "External Baselines")
 3. Follow its setup instructions for FaFNet + MeanFusion
-4. Run `octopus_v2x_eval.py` with paths to the trained perception model
+4. Run `evolvbft_v2x_eval.py` with paths to the trained perception model
 
 ---
 

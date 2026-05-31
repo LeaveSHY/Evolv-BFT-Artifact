@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"octopus-bft/octopus/benchmark"
+	"evolvbft/evolvbft/benchmark"
 )
 
 func main() {
@@ -17,7 +17,7 @@ func main() {
 		Network:       benchmark.WANProfile,
 		PipelineDepth: 4,
 	}
-	result := benchmark.RunConsensusBenchmark(cfg, "octopus")
+	result := benchmark.RunConsensusBenchmark(cfg, "evolvbft")
 	fmt.Printf("Old model (m=15): %.1f ktx/s, p50=%.1f ms, p99=%.1f ms\n",
 		result.ThroughputKtxs, result.LatencyP50Ms, result.LatencyP99Ms)
 

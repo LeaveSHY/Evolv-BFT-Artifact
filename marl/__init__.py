@@ -1,2 +1,2 @@
-"""FACMAC-compatible adaptive control service for Octopus."""
+"""FACMAC-compatible adaptive control service for Evolv-BFT."""
 

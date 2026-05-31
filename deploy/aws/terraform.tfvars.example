@@ -1,5 +1,5 @@
 # ============================================================================
-# Example terraform.tfvars for Octopus EC2 1000-node benchmark
+# Example terraform.tfvars for Evolv-BFT EC2 1000-node benchmark
 # Copy this file and fill in your values:
 #   cp terraform.tfvars.example terraform.tfvars
 # ============================================================================

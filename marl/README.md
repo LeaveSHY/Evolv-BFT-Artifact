@@ -1,13 +1,13 @@
-# Octopus Safe FACMAC Service
+# Evolv-BFT Safe FACMAC Service
 
-This package provides a lightweight FACMAC-compatible external research service for Octopus.
+This package provides a lightweight FACMAC-compatible external research service for Evolv-BFT.
 
 It is not authoritative runtime truth, not a protocol checkpoint service, and not evidence that the Go runtime already embeds full Safe FACMAC or full MOISE+ semantics.
 
-It is designed to work with the Go adaptive control plane already integrated in Octopus:
+It is designed to work with the Go adaptive control plane already integrated in Evolv-BFT:
 
-1. Octopus emits observations and adaptive traces.
-2. Octopus can also emit multi-agent observations, one per consensus instance.
+1. Evolv-BFT emits observations and adaptive traces.
+2. Evolv-BFT can also emit multi-agent observations, one per consensus instance.
 3. This service trains from JSONL traces.
 4. The Go runtime may call `/infer` through `-adaptive-policy=facmac-http`; this is an external HTTP policy bridge rather than native in-process FACMAC execution.
 
@@ -20,7 +20,7 @@ The service now supports:
 - service-side trainer metadata and policy outputs over the global observation; the README does not treat critic-related internals as a stronger public contract than the code currently exposes
 - top-level aggregate action fields inside each stage's `action` payload, as service-side schema support rather than a guarantee that the Go runtime will adopt every field unchanged
 
-Each `agent_action` targets one Octopus consensus instance and can independently tune:
+Each `agent_action` targets one Evolv-BFT consensus instance and can independently tune:
 
 - `committee_size`
 - `pacemaker_timeout_ms`
@@ -41,7 +41,7 @@ The FastAPI service currently enforces these boundaries:
 ## Run tests
 
 ```bash
-PYTHONPATH="/mnt/d/Alex/Papers/Experiment/Octopus" python3 -m unittest discover -s marl/tests -v
+PYTHONPATH="/mnt/d/Alex/Papers/Experiment/Evolv-BFT" python3 -m unittest discover -s marl/tests -v
 ```
 
 ## Run service
@@ -67,7 +67,7 @@ publisher.publish(driver.next_context(step=0))
 ```bash
 curl -X POST http://127.0.0.1:18080/train/offline \
   -H "Content-Type: application/json" \
-  -d '{"trace_path": "tmp/octopus-trace.jsonl"}'
+  -d '{"trace_path": "tmp/evolvbft-trace.jsonl"}'
 ```
 
 ## Online replay and checkpoints
@@ -105,7 +105,7 @@ The package now includes:
 
 - `marl.curriculum.CurriculumSchedule`: staged heterogeneous/dynamic/adversarial AIoT difficulty
 - `marl.orchestrator.ExperimentOrchestrator`: closed-loop runner for:
-  - pushing context to Octopus
+  - pushing context to Evolv-BFT
   - reading `/adaptive`
   - ingesting trajectories into the MARL service
   - triggering online training

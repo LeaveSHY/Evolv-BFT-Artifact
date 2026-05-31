@@ -43,7 +43,7 @@ class RolloutTests(unittest.TestCase):
         thread.start()
         try:
             runner = ScenarioRolloutRunner(
-                octopus_base_url=f"http://127.0.0.1:{server.server_port}",
+                evolvbft_base_url=f"http://127.0.0.1:{server.server_port}",
                 driver=AIoTScenarioDriver(seed=1),
             )
             snapshots = runner.run_steps(steps=3)

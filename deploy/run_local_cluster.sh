@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================================
-# Octopus BFT — Local Multi-Node Cluster Runner
+# Evolv-BFT — Local Multi-Node Cluster Runner
 # ============================================================================
-# Generates a genesis manifest and starts N local Octopus nodes.
+# Generates a genesis manifest and starts N local Evolv-BFT nodes.
 #
 # Usage:
 #   ./run_local_cluster.sh [OPTIONS]
@@ -22,7 +22,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-RESULTS_DIR="${OCTOPUS_LOCAL_CLUSTER_OUTPUT_DIR:-$ROOT_DIR/experiments/results/local_cluster_smoke}"
+RESULTS_DIR="${EVOLVBFT_LOCAL_CLUSTER_OUTPUT_DIR:-$ROOT_DIR/experiments/results/local_cluster_smoke}"
 SUMMARY_PATH="$RESULTS_DIR/local_cluster_smoke_summary.json"
 STDOUT_PATH="$RESULTS_DIR/local_cluster_stdout.txt"
 STDERR_PATH="$RESULTS_DIR/local_cluster_stderr.txt"
@@ -94,7 +94,7 @@ if status in {"failed", "partial"}:
         "missing_fields": [],
     }
 payload = {
-    "suite": "octopus-local-cluster",
+    "suite": "evolvbft-local-cluster",
     "purpose": "minimal local multi-node smoke entrypoint (not paper-grade benchmark evidence)",
     "command": command_string,
     "status": status,
@@ -105,7 +105,7 @@ payload = {
     "error_detail": error_detail,
     "evidence_manifest": {
         "producer": "deploy/run_local_cluster.sh",
-        "schema_version": "octopus-evidence-v1",
+        "schema_version": "evolvbft-evidence-v1",
         "truth_level": "minimal_truthful_evidence",
         "claim_boundary": "local-cluster smoke evidence only; not benchmark closure or paper-grade evidence",
         "evidence_kinds": ["local_cluster_smoke"],
@@ -190,14 +190,14 @@ cleanup() {
 trap cleanup EXIT
 
 # ── Build ───────────────────────────────────────────────────────────────────
-echo "=== Building Octopus ==="
+echo "=== Building Evolv-BFT ==="
 mkdir -p "$BUILD_DIR"
-(cd "$SRC_DIR" && go build -o "$BUILD_DIR/octopus" ./cmd/octopus)
-(cd "$SRC_DIR" && go build -o "$BUILD_DIR/octopus-genesis" ./cmd/octopus-genesis)
+(cd "$SRC_DIR" && go build -o "$BUILD_DIR/evolvbft" ./cmd/evolvbft)
+(cd "$SRC_DIR" && go build -o "$BUILD_DIR/evolvbft-genesis" ./cmd/evolvbft-genesis)
 
 # ── Generate genesis manifest ───────────────────────────────────────────────
 echo "=== Generating genesis manifest (nodes=$NODES, seed=$SEED) ==="
-"$BUILD_DIR/octopus-genesis" \
+"$BUILD_DIR/evolvbft-genesis" \
     -nodes="$NODES" \
     -seed="$SEED" \
     -base-host="127.0.0.1" \
@@ -214,7 +214,7 @@ for i in $(seq 0 $((NODES - 1))); do
     HTTP_PORT=$((HTTP_BASE + i))
     LOG_FILE="$SCRIPT_DIR/tmp-node-${i}.log"
 
-    "$BUILD_DIR/octopus" \
+    "$BUILD_DIR/evolvbft" \
         -id="$i" \
         -port="$P2P_PORT" \
         -http="$HTTP_PORT" \

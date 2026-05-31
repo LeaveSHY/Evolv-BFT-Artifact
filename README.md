@@ -9,7 +9,7 @@
 
 ## Overview
 
-Octopus is a research prototype implementing **Safe Interpretable MARL-Empowered Dynamic Pipelined Multi-Leader BFT** — a novel consensus architecture that unifies:
+Evolv-BFT is a research prototype implementing **Safe Interpretable MARL-Empowered Dynamic Pipelined Multi-Leader BFT** — a novel consensus architecture that unifies:
 
 1. **SFAC-FACMAC**: A safe, interpretable, multi-agent reinforcement learning controller that manages trust estimation and adaptive reconfiguration
 2. **Dynamic Pipelined Multi-Leader BFT**: A high-performance consensus engine with VRF committee selection, chained commit rules, and parallel lane execution
@@ -34,7 +34,7 @@ The system achieves **320 ktx/s** throughput with **<50ms** median latency at 10
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                          Octopus System                                  │
+│                          Evolv-BFT System                                  │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
 │  ┌───────────────────────────────────────────────────────────────────┐ │
@@ -82,11 +82,11 @@ The system achieves **320 ktx/s** throughput with **<50ms** median latency at 10
 ## Repository Structure
 
 ```
-Octopus/
+Evolv-BFT/
 ├── src/                                    # Go consensus engine (20k LOC)
-│   ├── cmd/octopus/main.go                 #   Main binary entry point
-│   ├── cmd/octopus-genesis/                #   Genesis manifest generator
-│   └── octopus/
+│   ├── cmd/evolvbft/main.go                 #   Main binary entry point
+│   ├── cmd/evolvbft-genesis/                #   Genesis manifest generator
+│   └── evolvbft/
 │       ├── consensus/
 │       │   ├── hotstuff/                   #   Core BFT engine (engine.go 1919L)
 │       │   │   ├── engine.go               #     Multi-leader + VRF + GBC
@@ -113,7 +113,7 @@ Octopus/
 │
 ├── Collaboration-Benchmark/                # V2X-Sim defense evaluation
 │   └── coperception/tools/det/
-│       └── octopus_v2x_experiment.py       #   Full V2X experiment (2163L)
+│       └── evolvbft_v2x_experiment.py       #   Full V2X experiment (2163L)
 │
 ├── deploy/                                 # Deployment infrastructure
 │   ├── aws/                                #   EC2 1000-node deployment (Terraform)
@@ -124,10 +124,10 @@ Octopus/
 │   └── run_local_cluster.sh                #   Local multi-node smoke test
 │
 ├── tla/                                    # Formal verification (TLA+)
-│   ├── OctopusSafety.tla                   #   Safety invariants
-│   ├── OctopusMultiLeader.tla              #   Multi-leader correctness
-│   ├── OctopusReconfiguration.tla          #   Dynamic membership safety
-│   └── OctopusComposed.tla                 #   Composed system model
+│   ├── EvolvbftSafety.tla                   #   Safety invariants
+│   ├── EvolvbftMultiLeader.tla              #   Multi-leader correctness
+│   ├── EvolvbftReconfiguration.tla          #   Dynamic membership safety
+│   └── EvolvbftComposed.tla                 #   Composed system model
 │
 └── Makefile                                # Build/test/run targets
 ```
@@ -153,7 +153,7 @@ make build
 make test
 
 # Consensus benchmark (includes 1000-node VRF test)
-cd src && go test -v -run TestConsensusBenchmark ./octopus/integration/ -timeout 300s
+cd src && go test -v -run TestConsensusBenchmark ./evolvbft/integration/ -timeout 300s
 ```
 
 ### Local Cluster (4 nodes)
@@ -186,7 +186,7 @@ Safe Factored Actor-Critic with FACMAC — the MARL trust management layer:
 - **MonotonicMixer**: Ensures credit assignment monotonicity for cooperative MARL
 - **4-Role P5 Decomposition**: Specialized action heads per organizational role
 
-### 2. Consensus Engine (`src/octopus/consensus/hotstuff/`)
+### 2. Consensus Engine (`src/evolvbft/consensus/hotstuff/`)
 
 Dynamic Pipelined Multi-Leader BFT based on Chained HotStuff:
 
@@ -202,7 +202,7 @@ Dynamic Pipelined Multi-Leader BFT based on Chained HotStuff:
 
 BFT-based defense for cooperative autonomous driving under distributed FDI attacks:
 
-- **7 Scenarios**: Single-agent, benign collaboration, attack without defense, attack with Octopus/ROBOSAC/MATE/AdvCP
+- **7 Scenarios**: Single-agent, benign collaboration, attack without defense, attack with Evolv-BFT/ROBOSAC/MATE/AdvCP
 - **3 Attack Modes**: Persistent, intermittent, coordinated (with evasive PGD)
 - **Real Perception Model**: FaFNet on V2X-Sim dataset with BEV 3D detection
 - **Trust-Weighted Fusion**: BFT trust scores filter malicious agents before feature aggregation
@@ -221,14 +221,14 @@ All 1000 validators generate real Ed25519 keypairs. Proposals are fully serializ
 
 | Defense | mAP@0.5 | TPR | FPR | Latency |
 |---------|---------|-----|-----|---------|
-| **Octopus** | **82.44** | **1.0** | **0.0** | **1.05s** |
+| **Evolv-BFT** | **82.44** | **1.0** | **0.0** | **1.05s** |
 | ROBOSAC | 73.88 | 1.0 | 1.0 | 303.6s |
 | MATE | 73.88 | 1.0 | 1.0 | 25.6s |
 | AdvCP | 73.88 | 1.0 | 1.0 | 26.1s |
 | No defense | 2.27 | — | — | 32.0s |
 | Benign (reference) | 82.45 | — | — | 0.99s |
 
-Octopus maintains near-benign mAP while achieving zero false positive rate — baselines degrade to ego-only performance (FPR=1.0 means they reject all collaborators).
+Evolv-BFT maintains near-benign mAP while achieving zero false positive rate — baselines degrade to ego-only performance (FPR=1.0 means they reject all collaborators).
 
 ## Formal Verification
 

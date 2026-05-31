@@ -11,7 +11,7 @@ Matches Algorithm 1 (SafeMARL) in Section III-D exactly:
   - Prioritized Experience Replay (PER)
   - Target networks with soft update
 
-Interface matches OctopusMARLController in run_e2e_experiments.py:
+Interface matches EvolvbftMARLController in run_e2e_experiments.py:
   - FACMACController(cfg) constructor
   - .m attribute
   - .reset(), .set_eval(), .set_train()
@@ -555,7 +555,7 @@ class FACMACController:
             equiv_signal: optional per-instance equivocation signal (m,)
                 If None, e/W channel uses a decorrelated lag of raw_signal.
 
-        Returns dict compatible with OctopusMARLController expectations.
+        Returns dict compatible with EvolvbftMARLController expectations.
         """
         # ── Phase 1: Estimate ──
         self._update_trust_ewma(raw_signal, equiv_signal)
@@ -890,7 +890,7 @@ class FACMACController:
     def store_transition(self, per_inst_rewards: np.ndarray, done: bool = False):
         """Store transition using delayed pattern.
 
-        Called after update() in OctopusMARLController. At this point we have:
+        Called after update() in EvolvbftMARLController. At this point we have:
           - _prev_obs/actions/state from decide(t-1)
           - _curr_obs from decide(t) as next_obs
           - per_inst_rewards from environment (used as auxiliary signal)

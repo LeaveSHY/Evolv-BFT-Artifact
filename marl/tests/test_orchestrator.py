@@ -56,7 +56,7 @@ class OrchestratorTests(unittest.TestCase):
                         json.dumps(
                             {
                                 "enabled": True,
-                                "schema_version": "octopus-adaptive-v1",
+                                "schema_version": "evolvbft-adaptive-v1",
                                 "last_decision": {
                                     "policy_name": "facmac-http",
                                     "observation": {"validator_count": 8},
@@ -75,18 +75,18 @@ class OrchestratorTests(unittest.TestCase):
             def log_message(self, format, *args):
                 return
 
-        octopus = HTTPServer(("127.0.0.1", 0), Handler)
+        evolvbft = HTTPServer(("127.0.0.1", 0), Handler)
         service = HTTPServer(("127.0.0.1", 0), Handler)
-        octopus_thread = threading.Thread(target=octopus.serve_forever, daemon=True)
+        evolvbft_thread = threading.Thread(target=evolvbft.serve_forever, daemon=True)
         service_thread = threading.Thread(target=service.serve_forever, daemon=True)
-        octopus_thread.start()
+        evolvbft_thread.start()
         service_thread.start()
 
         with tempfile.TemporaryDirectory() as tmp:
             checkpoint_dir = Path(tmp)
             try:
                 orchestrator = ExperimentOrchestrator(
-                    octopus_base_url=f"http://127.0.0.1:{octopus.server_port}",
+                    evolvbft_base_url=f"http://127.0.0.1:{evolvbft.server_port}",
                     marl_service_url=f"http://127.0.0.1:{service.server_port}",
                     curriculum=CurriculumSchedule(
                         phases=[
@@ -97,11 +97,11 @@ class OrchestratorTests(unittest.TestCase):
                 )
                 orchestrator.run(steps=1, train_every=1, checkpoint_every=1)
             finally:
-                octopus.shutdown()
+                evolvbft.shutdown()
                 service.shutdown()
-                octopus_thread.join(timeout=2)
+                evolvbft_thread.join(timeout=2)
                 service_thread.join(timeout=2)
-                octopus.server_close()
+                evolvbft.server_close()
                 service.server_close()
 
         self.assertEqual(state["checkpoint_paths"], ["checkpoint-step-1.json"])
@@ -152,7 +152,7 @@ class OrchestratorTests(unittest.TestCase):
                         json.dumps(
                             {
                                 "enabled": True,
-                                "schema_version": "octopus-adaptive-v1",
+                                "schema_version": "evolvbft-adaptive-v1",
                                 "last_decision": {
                                     "policy_name": "facmac-http",
                                     "observation": {
@@ -204,18 +204,18 @@ class OrchestratorTests(unittest.TestCase):
             def log_message(self, format, *args):
                 return
 
-        octopus = HTTPServer(("127.0.0.1", 0), Handler)
+        evolvbft = HTTPServer(("127.0.0.1", 0), Handler)
         service = HTTPServer(("127.0.0.1", 0), Handler)
-        octopus_thread = threading.Thread(target=octopus.serve_forever, daemon=True)
+        evolvbft_thread = threading.Thread(target=evolvbft.serve_forever, daemon=True)
         service_thread = threading.Thread(target=service.serve_forever, daemon=True)
-        octopus_thread.start()
+        evolvbft_thread.start()
         service_thread.start()
 
         with tempfile.TemporaryDirectory() as tmp:
             checkpoint_dir = Path(tmp)
             try:
                 orchestrator = ExperimentOrchestrator(
-                    octopus_base_url=f"http://127.0.0.1:{octopus.server_port}",
+                    evolvbft_base_url=f"http://127.0.0.1:{evolvbft.server_port}",
                     marl_service_url=f"http://127.0.0.1:{service.server_port}",
                     curriculum=CurriculumSchedule(
                         phases=[
@@ -226,16 +226,16 @@ class OrchestratorTests(unittest.TestCase):
                 )
                 orchestrator.run(steps=1, train_every=1, checkpoint_every=0)
             finally:
-                octopus.shutdown()
+                evolvbft.shutdown()
                 service.shutdown()
-                octopus_thread.join(timeout=2)
+                evolvbft_thread.join(timeout=2)
                 service_thread.join(timeout=2)
-                octopus.server_close()
+                evolvbft.server_close()
                 service.server_close()
 
         self.assertEqual(len(state["ingest_payloads"]), 1)
         payload = state["ingest_payloads"][0]
-        self.assertEqual(payload["schema_version"], "octopus-adaptive-v1")
+        self.assertEqual(payload["schema_version"], "evolvbft-adaptive-v1")
         self.assertIn("candidate", payload)
         self.assertIn("governed", payload)
         self.assertIn("masked", payload)
@@ -387,18 +387,18 @@ class OrchestratorTests(unittest.TestCase):
             def log_message(self, format, *args):
                 return
 
-        octopus = HTTPServer(("127.0.0.1", 0), Handler)
+        evolvbft = HTTPServer(("127.0.0.1", 0), Handler)
         service = HTTPServer(("127.0.0.1", 0), Handler)
-        octopus_thread = threading.Thread(target=octopus.serve_forever, daemon=True)
+        evolvbft_thread = threading.Thread(target=evolvbft.serve_forever, daemon=True)
         service_thread = threading.Thread(target=service.serve_forever, daemon=True)
-        octopus_thread.start()
+        evolvbft_thread.start()
         service_thread.start()
 
         with tempfile.TemporaryDirectory() as tmp:
             checkpoint_dir = Path(tmp)
             try:
                 orchestrator = ExperimentOrchestrator(
-                    octopus_base_url=f"http://127.0.0.1:{octopus.server_port}",
+                    evolvbft_base_url=f"http://127.0.0.1:{evolvbft.server_port}",
                     marl_service_url=f"http://127.0.0.1:{service.server_port}",
                     curriculum=CurriculumSchedule(
                         phases=[
@@ -410,11 +410,11 @@ class OrchestratorTests(unittest.TestCase):
                 )
                 summary = orchestrator.run(steps=4, train_every=2, checkpoint_every=2)
             finally:
-                octopus.shutdown()
+                evolvbft.shutdown()
                 service.shutdown()
-                octopus_thread.join(timeout=2)
+                evolvbft_thread.join(timeout=2)
                 service_thread.join(timeout=2)
-                octopus.server_close()
+                evolvbft.server_close()
                 service.server_close()
 
         self.assertEqual(summary["steps"], 4)
@@ -501,18 +501,18 @@ class OrchestratorTests(unittest.TestCase):
             def log_message(self, format, *args):
                 return
 
-        octopus = HTTPServer(("127.0.0.1", 0), Handler)
+        evolvbft = HTTPServer(("127.0.0.1", 0), Handler)
         service = HTTPServer(("127.0.0.1", 0), Handler)
-        octopus_thread = threading.Thread(target=octopus.serve_forever, daemon=True)
+        evolvbft_thread = threading.Thread(target=evolvbft.serve_forever, daemon=True)
         service_thread = threading.Thread(target=service.serve_forever, daemon=True)
-        octopus_thread.start()
+        evolvbft_thread.start()
         service_thread.start()
 
         with tempfile.TemporaryDirectory() as tmp:
             checkpoint_dir = Path(tmp)
             try:
                 orchestrator = ExperimentOrchestrator(
-                    octopus_base_url=f"http://127.0.0.1:{octopus.server_port}",
+                    evolvbft_base_url=f"http://127.0.0.1:{evolvbft.server_port}",
                     marl_service_url=f"http://127.0.0.1:{service.server_port}",
                     curriculum=CurriculumSchedule(
                         phases=[
@@ -523,11 +523,11 @@ class OrchestratorTests(unittest.TestCase):
                 )
                 orchestrator.run(steps=1, train_every=1, checkpoint_every=1)
             finally:
-                octopus.shutdown()
+                evolvbft.shutdown()
                 service.shutdown()
-                octopus_thread.join(timeout=2)
+                evolvbft_thread.join(timeout=2)
                 service_thread.join(timeout=2)
-                octopus.server_close()
+                evolvbft.server_close()
                 service.server_close()
 
         payload = state["ingest_payloads"][0]
@@ -606,18 +606,18 @@ class OrchestratorTests(unittest.TestCase):
             def log_message(self, format, *args):
                 return
 
-        octopus = HTTPServer(("127.0.0.1", 0), Handler)
+        evolvbft = HTTPServer(("127.0.0.1", 0), Handler)
         service = HTTPServer(("127.0.0.1", 0), Handler)
-        octopus_thread = threading.Thread(target=octopus.serve_forever, daemon=True)
+        evolvbft_thread = threading.Thread(target=evolvbft.serve_forever, daemon=True)
         service_thread = threading.Thread(target=service.serve_forever, daemon=True)
-        octopus_thread.start()
+        evolvbft_thread.start()
         service_thread.start()
 
         with tempfile.TemporaryDirectory() as tmp:
             checkpoint_dir = Path(tmp)
             try:
                 orchestrator = ExperimentOrchestrator(
-                    octopus_base_url=f"http://127.0.0.1:{octopus.server_port}",
+                    evolvbft_base_url=f"http://127.0.0.1:{evolvbft.server_port}",
                     marl_service_url=f"http://127.0.0.1:{service.server_port}",
                     curriculum=CurriculumSchedule(
                         phases=[
@@ -628,11 +628,11 @@ class OrchestratorTests(unittest.TestCase):
                 )
                 orchestrator.run(steps=1, train_every=1, checkpoint_every=1)
             finally:
-                octopus.shutdown()
+                evolvbft.shutdown()
                 service.shutdown()
-                octopus_thread.join(timeout=2)
+                evolvbft_thread.join(timeout=2)
                 service_thread.join(timeout=2)
-                octopus.server_close()
+                evolvbft.server_close()
                 service.server_close()
 
         payload = state["ingest_payloads"][0]
