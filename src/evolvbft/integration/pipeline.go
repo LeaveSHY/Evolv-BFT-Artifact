@@ -41,6 +41,10 @@ type Pipeline struct {
 	currentEpoch uint64
 	epochStats   map[uint64]*EpochStats
 
+	// Versioned adaptive config with reversible rollback (§III-D, App. B).
+	// Lazily seeded from the instance set on first commit.
+	versionChain *adaptive.VersionChain
+
 	// Callbacks
 	onReconfigDecision func(instanceID uint64, evict []uint64, admit []uint64)
 	onTrustUpdate      func(epoch uint64, scores map[uint64]float64)
@@ -108,6 +112,17 @@ type ReconfigPayload struct {
 	Admissions []uint64 `json:"admissions"`
 	NAfter     int      `json:"n_after"`
 	FAfter     int      `json:"f_after"`
+}
+
+// ConfigVersionPayload is the JSON payload for EntryConfigVersion entries.
+// It records one node in the append-only configuration chain (§III-D, App. B).
+type ConfigVersionPayload struct {
+	Epoch       uint64                 `json:"epoch"`
+	VersionID   uint64                 `json:"version_id"`
+	ParentID    uint64                 `json:"parent_id"`
+	Params      adaptive.ConfigParams  `json:"params"`
+	PhiAtCommit int                    `json:"phi_at_commit"`
+	Status      adaptive.VersionStatus `json:"status"`
 }
 
 // NewPipeline creates the integration pipeline.
@@ -275,6 +290,31 @@ func (p *Pipeline) ProcessEpoch(epoch uint64, agentMetrics map[uint64]trust.Epoc
 		}
 	}
 
+	// Step 4b: Record the post-reconfig effective config as a committed version.
+	// This anchors the configuration in the append-only version chain so a later
+	// safety or liveness regression can revert to a proven-safe ancestor (App. B).
+	// Commit-then-apply: append to the chain only after the GBC publish succeeds.
+	if stats.ReconfigActions > 0 {
+		p.ensureVersionChainLocked()
+		params := p.currentConfigParamsLocked()
+		phi := p.computePhiLocked()
+		parent := p.versionChain.Latest()
+		payload, _ := json.Marshal(ConfigVersionPayload{
+			Epoch:       epoch,
+			VersionID:   parent.VersionID + 1,
+			ParentID:    parent.VersionID,
+			Params:      params,
+			PhiAtCommit: phi,
+			Status:      adaptive.StatusCommitted,
+		})
+		if err := p.publishToGBC(gbc.EntryConfigVersion, payload); err != nil {
+			// GBC publish failed — do NOT append the version locally.
+			p.logger.Printf("WARN: GBC publish failed for config version epoch %d: %v", epoch, err)
+		} else {
+			p.versionChain.AppendCommitted(params, phi, int(p.gbcLog.Height()))
+		}
+	}
+
 	// Step 5: Publish trust update to GBC
 	trustPayload, _ := json.Marshal(TrustUpdatePayload{
 		Epoch:  epoch,
@@ -303,6 +343,135 @@ func (p *Pipeline) GetEpochStats(epoch uint64) (*EpochStats, bool) {
 	defer p.mu.RUnlock()
 	s, ok := p.epochStats[epoch]
 	return s, ok
+}
+
+// ensureVersionChainLocked lazily seeds the version chain from the current
+// instance set. The genesis records the live config and its safety margin Phi
+// (Assumption A2: the bootstrap config is safe). Caller holds p.mu.
+func (p *Pipeline) ensureVersionChainLocked() {
+	if p.versionChain != nil {
+		return
+	}
+	p.versionChain = adaptive.NewVersionChain(
+		p.currentConfigParamsLocked(),
+		p.computePhiLocked(),
+		int(p.gbcLog.Height()),
+	)
+}
+
+// currentConfigParamsLocked snapshots the effective configuration parameters.
+// Caller holds p.mu. ValidatorCount/FaultBound summarize the instance set so a
+// restored ancestor pins the quorum invariant n >= 3f+1+delta_s.
+func (p *Pipeline) currentConfigParamsLocked() adaptive.ConfigParams {
+	totalValidators := 0
+	totalFaults := 0
+	snapshot := make([]adaptive.InstanceConfig, 0, len(p.instances))
+	for i := range p.instances {
+		totalValidators += p.instances[i].ValidatorCount
+		totalFaults += p.instances[i].FaultTolerance
+		snapshot = append(snapshot, adaptive.InstanceConfig{
+			InstanceID:     p.instances[i].InstanceID,
+			ValidatorCount: p.instances[i].ValidatorCount,
+			FaultBound:     p.instances[i].FaultTolerance,
+		})
+	}
+	return adaptive.ConfigParams{
+		ValidatorCount: totalValidators,
+		FaultBound:     totalFaults,
+		InstanceCount:  len(p.instances),
+		Instances:      snapshot,
+	}
+}
+
+// computePhiLocked evaluates the joint safety invariant Phi over the live
+// instance set and GBC (Definition 3, via adaptive.ComputePhi). Caller holds
+// p.mu. The GBC member count is read from the beacon log, which is the
+// authoritative committee enforcing attestation quorum.
+func (p *Pipeline) computePhiLocked() int {
+	states := make([]adaptive.InstanceState, 0, len(p.instances))
+	for i := range p.instances {
+		states = append(states, adaptive.InstanceState{
+			InstanceID:     p.instances[i].InstanceID,
+			ValidatorCount: p.instances[i].ValidatorCount,
+			FaultsEstimate: p.instances[i].FaultTolerance,
+		})
+	}
+	gbcMembers := p.gbcLog.NumMembers()
+	gbcFaults := 0
+	if gbcMembers > 0 {
+		gbcFaults = (gbcMembers - 1) / 3
+	}
+	return adaptive.ComputePhi(states, gbcMembers, gbcFaults)
+}
+
+// EvaluateAndRollback applies the third defense gate (§III-D, App. B).
+// It reads objective, on-chain verifiable signals and, when a trigger fires,
+// reverts the effective configuration to the nearest proven-safe ancestor.
+//
+// Commit-then-apply: the ROLLEDBACK version is published to GBC first; only on
+// a durable quorum commit does the pipeline append it to the chain and restore
+// the safe parameters. A failed publish leaves the effective config unchanged.
+//
+// Returns (true, target, nil) when a rollback is committed, (false, zero, nil)
+// when no trigger fires or no safe ancestor exists, and a non-nil error only on
+// a GBC publish failure during an attempted rollback.
+func (p *Pipeline) EvaluateAndRollback(epoch uint64, observed adaptive.ObservedSafety) (bool, adaptive.ConfigVersion, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	p.ensureVersionChainLocked()
+	target, ok := adaptive.EvaluateRollback(p.versionChain, observed, p.safety.DeltaS)
+	if !ok {
+		return false, adaptive.ConfigVersion{}, nil
+	}
+
+	parent := p.versionChain.Latest()
+	payload, _ := json.Marshal(ConfigVersionPayload{
+		Epoch:       epoch,
+		VersionID:   parent.VersionID + 1,
+		ParentID:    parent.VersionID,
+		Params:      target.Params,
+		PhiAtCommit: target.PhiAtCommit,
+		Status:      adaptive.StatusRolledBack,
+	})
+	if err := p.publishToGBC(gbc.EntryConfigVersion, payload); err != nil {
+		// Publish failed — do NOT apply rollback. Effective config is unchanged.
+		p.logger.Printf("WARN: GBC publish failed for rollback epoch %d: %v", epoch, err)
+		return false, adaptive.ConfigVersion{}, err
+	}
+
+	applied := p.versionChain.AppendRollback(target, int(p.gbcLog.Height()))
+	p.restoreInstancesLocked(target.Params)
+	p.logger.Printf("ROLLBACK epoch %d: reverted to safe ancestor v%d (phi=%d) as v%d",
+		epoch, target.VersionID, target.PhiAtCommit, applied.VersionID)
+	return true, applied, nil
+}
+
+// restoreInstancesLocked applies a version's per-instance snapshot back onto the
+// live instance set, pinning each instance quorum invariant n_v >= 3f_v+1+delta_s.
+// Caller holds p.mu. Instances absent from the snapshot are left unchanged.
+func (p *Pipeline) restoreInstancesLocked(params adaptive.ConfigParams) {
+	byID := make(map[uint64]adaptive.InstanceConfig, len(params.Instances))
+	for _, ic := range params.Instances {
+		byID[ic.InstanceID] = ic
+	}
+	for i := range p.instances {
+		if ic, ok := byID[p.instances[i].InstanceID]; ok {
+			p.instances[i].ValidatorCount = ic.ValidatorCount
+			p.instances[i].FaultTolerance = ic.FaultBound
+		}
+	}
+}
+
+// VersionChainSnapshot returns a copy of the current configuration version
+// lineage for inspection and testing. Returns nil if no version is recorded.
+func (p *Pipeline) VersionChainSnapshot() []adaptive.ConfigVersion {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	if p.versionChain == nil {
+		return nil
+	}
+	return p.versionChain.Versions()
 }
 
 // CurrentEpoch returns the current epoch.

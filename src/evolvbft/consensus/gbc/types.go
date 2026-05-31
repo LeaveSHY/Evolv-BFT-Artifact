@@ -4,11 +4,12 @@ package gbc
 type EntryType string
 
 const (
-	EntryQC           EntryType = "qc"
-	EntryCheckpoint   EntryType = "checkpoint"
-	EntryPolicyUpdate EntryType = "policy_update"
-	EntryMembership   EntryType = "membership"
-	EntryTrust        EntryType = "trust" // cross-instance trust reports (Limitation i defense)
+	EntryQC            EntryType = "qc"
+	EntryCheckpoint    EntryType = "checkpoint"
+	EntryPolicyUpdate  EntryType = "policy_update"
+	EntryMembership    EntryType = "membership"
+	EntryTrust         EntryType = "trust"          // cross-instance trust reports (Limitation i defense)
+	EntryConfigVersion EntryType = "config_version" // versioned adaptive config with reversible rollback (§III-D)
 )
 
 // Attestation is a signature from one GBC member (instance primary) over an entry digest.

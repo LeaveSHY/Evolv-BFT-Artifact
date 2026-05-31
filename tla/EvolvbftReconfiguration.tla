@@ -78,6 +78,22 @@ AutoTransition(nodeID) ==
     /\ mHigh' = mHigh \ {nodeID}
     /\ UNCHANGED <<epoch, activeSet, pendingJoins, pendingLeaves, mValid, quorumSize, committed>>
 
+(* Rollback (Autogenesis inspiration (i)): discard a drifted candidate config and
+   restore the last committed safe config. mValid is the nearest COMMITTED ancestor
+   (the previously promoted, BFT-safe configuration). Rollback reverts the candidate
+   mHigh and the effective activeSet to mValid, discards in-flight membership drift,
+   and recomputes the quorum. It never advances the epoch: it only undoes uncommitted
+   adaptation. Models EvaluateAndRollback restoring SafeAncestor.Params. *)
+Rollback ==
+    /\ mHigh # mValid                 \* there is uncommitted drift to undo
+    /\ Cardinality(mValid) >= 4        \* the safe ancestor satisfies n >= 3f+1
+    /\ mHigh' = mValid                 \* restore candidate to last safe committed config
+    /\ activeSet' = mValid             \* effective config returns to the safe ancestor
+    /\ quorumSize' = (2 * Cardinality(mValid)) \div 3 + 1
+    /\ pendingJoins' = {}              \* discard drift that motivated the rollback
+    /\ pendingLeaves' = {}
+    /\ UNCHANGED <<epoch, mValid, committed>>
+
 Next ==
     \/ \E nodeID \in Nodes : SubmitJoin(nodeID)
     \/ \E nodeID \in Nodes : SubmitLeave(nodeID)
@@ -86,6 +102,7 @@ Next ==
     \/ PromoteConfig
     \/ CommitBlock
     \/ \E nodeID \in activeSet : AutoTransition(nodeID)
+    \/ Rollback
 
 Spec == Init /\ [][Next]_vars
 
@@ -108,6 +125,14 @@ EpochSafety == epoch > 1 => Cardinality(mValid) >= 4
 (* G5b fix: MvalidSubsetMhigh — mValid must always be a known-good subset,
    and mHigh is the candidate superset. After promotion, mValid = mHigh. *)
 ConfigMonotonicity == Cardinality(mValid) >= 4
+
+(* RollbackSafety (Autogenesis inspiration (i)): a rollback never installs an
+   unsafe configuration. The restored effective config (activeSet) is always
+   BFT-safe, and after restoring it fully covers the safe ancestor mValid, so
+   quorum intersection across the rollback boundary holds by construction. *)
+RollbackSafety ==
+    /\ Cardinality(activeSet) >= 4
+    /\ Cardinality(activeSet \intersect mValid) >= 1
 
 (* Liveness: eventually all pending requests are processed. *)
 Liveness == <>(pendingJoins = {} /\ pendingLeaves = {})
