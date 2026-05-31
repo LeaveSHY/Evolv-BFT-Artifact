@@ -11,7 +11,7 @@ Matches 3framework.tex exactly:
 - PER (prioritized experience replay)
 
 Hyperparameters from Appendix Table (Appendix:Hyperparams):
-  h=64, |D|=100000, batch=256, lr=3e-4, γ=0.99, W=50, T_epoch=100
+  h=64, |D|=100000, batch=256, lr=3e-4, γ=0.99, W=50, B_ctrl=100 (commits per control epoch)
   λ₁=1.0, λ₂=0.1, λ₃=0.5, λ₄=100.0, λ₅=0.5, λ₆=1.0
   PER α=0.6, β annealed 0.4→1.0
 """
