@@ -2,7 +2,9 @@
 import re
 from pathlib import Path
 
-path = Path("d:/Alex/Papers/NDSS 2027_SUBMISSION/appendix.tex")
+import sys
+# Usage: python _audit_appendix.py <path-to-appendix.tex>
+path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(input("Path to appendix.tex: "))
 lines = path.read_text(encoding="utf-8").splitlines()
 
 # Patterns that indicate a numerical empirical claim

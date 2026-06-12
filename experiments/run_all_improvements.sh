@@ -4,7 +4,7 @@
 #
 # Usage (on WSL):
 #   source ~/miniconda3/etc/profile.d/conda.sh && conda activate robosac-gpu
-#   cd /mnt/d/Alex/Papers/Experiment/Evolv-BFT
+#   cd Evolv-BFT   # (or wherever the repo root is)
 #   bash experiments/run_all_improvements.sh [--skip-p0] [--skip-p1] [--skip-p3] [--skip-p4]
 #
 # Prerequisites:

@@ -41,7 +41,8 @@ The FastAPI service currently enforces these boundaries:
 ## Run tests
 
 ```bash
-PYTHONPATH="/mnt/d/Alex/Papers/Experiment/Evolv-BFT" python3 -m unittest discover -s marl/tests -v
+# From the Evolv-BFT repo root
+PYTHONPATH="." python3 -m unittest discover -s marl/tests -v
 ```
 
 ## Run service

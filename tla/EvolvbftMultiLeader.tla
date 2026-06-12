@@ -63,7 +63,7 @@ Next ==
     \/ GlobalOrder
     \/ \E r \in 0..(MAX_HEIGHT * M) : NilFill(r)
 
-Spec == Init /\ [][Next]_vars
+Spec == Init /\ [][Next]_vars /\ WF_vars(Next)
 
 (* === SAFETY INVARIANTS === *)
 

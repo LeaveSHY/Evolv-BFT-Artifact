@@ -117,7 +117,7 @@ Next ==
     \/ \E p \in HonestPrimaries : SyncView(p)
     \/ \E p \in HonestPrimaries : Desync(p)
 
-Spec == Init /\ [][Next]_vars
+Spec == Init /\ [][Next]_vars /\ WF_vars(Next)
 
 (* ================================================================
    GBC SAFETY INVARIANTS
@@ -151,5 +151,10 @@ PolicyConsistency == \A p1, p2 \in HonestPrimaries :
 (* Log integrity: every committed entry was proposed *)
 LogIntegrity == \A i \in 1..Len(gbcLog) :
     gbcLog[i].slot = i
+
+(* Liveness: eventually at least one entry is committed.
+   Under partial synchrony with honest majority (M >= 3*F_GBC + 1),
+   the GBC eventually makes progress. *)
+Liveness == <>(Len(gbcLog) > 0)
 
 =============================================================================

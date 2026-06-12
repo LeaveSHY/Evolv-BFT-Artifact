@@ -37,7 +37,6 @@ NDSS 2027_SUBMISSION/
 # Profiling / scratch
 *.out
 .pytest_cache/
-d:\\Alex\\Papers/
 tla/tla2tools.jar
 tla/*.bin
 tla/states/

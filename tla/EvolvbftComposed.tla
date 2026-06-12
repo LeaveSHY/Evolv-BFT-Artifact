@@ -195,7 +195,7 @@ Next ==
     \/ \E node \in Nodes, v \in 1..VIEWS : Timeout(node, v)
     \/ \E v \in 1..VIEWS : FormTC(v)
 
-Spec == Init /\ [][Next]_vars
+Spec == Init /\ [][Next]_vars /\ WF_vars(Next)
 
 (* === COMPOSED SAFETY INVARIANTS === *)
 
@@ -225,5 +225,21 @@ ComposedSafety ==
     /\ QuorumIntersection
     /\ StrictOrdering
     /\ MinConfigSize
+
+(* === COMPOSED LIVENESS === *)
+
+(* Liveness: consensus progress — repeatedly, some view achieves quorum.
+   Under partial synchrony with honest majority, consensus makes progress. *)
+ConsensusLiveness == []<>(\E v \in ViewSet : Cardinality(votes[v]) >= QuorumSize)
+
+(* Liveness: global ordering progress — every pending block is eventually ordered.
+   The global orderer processes pending blocks in rank order. *)
+GlobalOrderingLiveness == \A b \in pending :
+    <>(b \in {globalLog[i] : i \in 1..Len(globalLog)})
+
+(* Composed liveness: all liveness properties hold simultaneously *)
+ComposedLiveness ==
+    /\ ConsensusLiveness
+    /\ GlobalOrderingLiveness
 
 =============================================================================

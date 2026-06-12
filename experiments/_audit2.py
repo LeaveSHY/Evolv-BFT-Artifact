@@ -1,5 +1,7 @@
-import json, os
-os.chdir(r'd:\Alex\Papers\NDSS 2027_SUBMISSION\figures\Evolv-BFT')
+import json, os, sys
+# Usage: python _audit2.py <path-to-NDSS-figures-dir>
+fig_dir = sys.argv[1] if len(sys.argv) > 1 else input("Path to NDSS figures dir: ")
+os.chdir(fig_dir)
 d=json.load(open('appendix_experiment_data.json'))
 
 print('=== exp_d_detection_latency ===')
@@ -21,7 +23,7 @@ for k,v in d['exp_c_ctde_scaling'].items():
     print(f'  {k}: {v}')
 print()
 
-os.chdir(r'd:\Alex\Papers\NDSS 2027_SUBMISSION\figures\v2x')
+os.chdir(os.path.join(os.path.dirname(fig_dir), 'v2x'))
 m=json.load(open('v2x_multiseed_aggregate.json'))
 print('=== v2x_multiseed_aggregate top keys ===')
 print(list(m.keys()))
