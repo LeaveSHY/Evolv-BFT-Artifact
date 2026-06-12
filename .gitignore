@@ -5,7 +5,6 @@
 .codegraph/
 .pytest_cache/
 build/
-*.pdf
 __pycache__/
 *.pyc
 deploy/tmp-*
